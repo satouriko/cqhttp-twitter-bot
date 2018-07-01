@@ -9,7 +9,13 @@ class default_1 {
     constructor(opt) {
         this.retryInterval = 1000;
         this.initWebsocket = () => {
-            this.bot = new CQWebsocket(this.botInfo);
+            this.bot = new CQWebsocket({
+                access_token: this.botInfo.access_token,
+                enableAPI: true,
+                enableEvent: true,
+                host: this.botInfo.host,
+                port: this.botInfo.port,
+            });
             this.bot.on('socket.connect', () => {
                 logger.info('websocket connected');
                 this.retryInterval = 1000;
@@ -73,13 +79,7 @@ class default_1 {
             }, this.retryInterval);
         };
         logger.info(`init cqwebsocket for ${opt.host}:${opt.port}, with access_token ${opt.access_token}`);
-        this.botInfo = {
-            access_token: opt.access_token,
-            enableAPI: true,
-            enableEvent: true,
-            host: opt.host,
-            port: opt.port,
-        };
+        this.botInfo = opt;
     }
 }
 exports.default = default_1;
