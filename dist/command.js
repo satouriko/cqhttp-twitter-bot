@@ -3,8 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const log4js = require("log4js");
 const path = require("path");
+const datetime_1 = require("./datetime");
 const logger = log4js.getLogger('command');
-logger.level = 'info';
+logger.level = global.loglevel;
 function sub(chat, args, lock, lockfile) {
     if (args.length === 0) {
         return '找不到要订阅的链接。';
@@ -36,6 +37,7 @@ https://twitter.com/rikakomoe/lists/lovelive`;
         lock.threads[link] = {
             offset: 0,
             subscribers: [],
+            updatedAt: '',
         };
     }
     flag = false;
@@ -78,7 +80,7 @@ function list(chat, args, lock) {
     Object.keys(lock.threads).forEach(key => {
         lock.threads[key].subscribers.forEach(c => {
             if (c.chatID === chat.chatID && c.chatType === chat.chatType)
-                links.push(key);
+                links.push(`${key} ${datetime_1.relativeDate(lock.threads[key].updatedAt)}`);
         });
     });
     return '此聊天中订阅的链接：\n' + links.join('\n');

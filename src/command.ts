@@ -2,8 +2,10 @@ import * as fs from 'fs';
 import * as log4js from 'log4js';
 import * as path from 'path';
 
+import { relativeDate } from './datetime';
+
 const logger = log4js.getLogger('command');
-logger.level = 'info';
+logger.level = (global as any).loglevel;
 
 function sub(chat: IChat, args: string[], lock: ILock, lockfile: string): string {
   if (args.length === 0) {
@@ -32,6 +34,7 @@ https://twitter.com/rikakomoe/lists/lovelive`;
     lock.threads[link] = {
       offset: 0,
       subscribers: [],
+      updatedAt: '',
     };
   }
   flag = false;
@@ -71,10 +74,10 @@ function list(chat: IChat, args: string[], lock: ILock): string {
   const links = [];
   Object.keys(lock.threads).forEach(key => {
     lock.threads[key].subscribers.forEach(c => {
-      if (c.chatID === chat.chatID && c.chatType === chat.chatType) links.push(key);
+      if (c.chatID === chat.chatID && c.chatType === chat.chatType) links.push(`${key} ${relativeDate(lock.threads[key].updatedAt)}`);
     });
   });
   return '此聊天中订阅的链接：\n' + links.join('\n');
 }
 
-export { sub, list, unsub };
+export {sub, list, unsub};

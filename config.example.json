@@ -8,5 +8,6 @@
   "twitter_access_token_secret": "",
   "work_interval": 60,
   "webshot_delay": 5000,
-  "lockfile": "subscriber.lock"
+  "lockfile": "subscriber.lock",
+  "loglevel": "info"
 }

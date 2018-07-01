@@ -6,7 +6,7 @@ const path = require("path");
 const Twitter = require("twitter");
 const webshot_1 = require("./webshot");
 const logger = log4js.getLogger('twitter');
-logger.level = 'info';
+logger.level = global.loglevel;
 class default_1 {
     constructor(opt) {
         this.work = () => {
@@ -31,6 +31,7 @@ class default_1 {
                 this.work();
                 return;
             }
+            logger.debug(`pulling feed ${lock.feed[lock.workon]}`);
             const promise = new Promise(resolve => {
                 let match = lock.feed[lock.workon].match(/https:\/\/twitter.com\/([^\/]+)\/lists\/([^\/]+)/);
                 if (match) {
@@ -62,6 +63,7 @@ class default_1 {
                 }
             });
             promise.then((tweets) => {
+                logger.debug(`api returned ${JSON.stringify(tweets)} for feed ${lock.feed[lock.workon]}`);
                 if (tweets.length === 0)
                     return;
                 if (lock.threads[lock.feed[lock.workon]].offset === -1) {
@@ -82,7 +84,10 @@ class default_1 {
                         });
                     });
                 }, this.webshotDelay)
-                    .then(() => lock.threads[lock.feed[lock.workon]].offset = tweets[0].id_str);
+                    .then(() => {
+                    lock.threads[lock.feed[lock.workon]].offset = tweets[0].id_str;
+                    lock.threads[lock.feed[lock.workon]].updatedAt = new Date().toString();
+                });
             })
                 .then(() => {
                 lock.workon++;

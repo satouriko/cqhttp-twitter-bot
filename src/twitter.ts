@@ -19,7 +19,7 @@ interface IWorkerOption {
 }
 
 const logger = log4js.getLogger('twitter');
-logger.level = 'info';
+logger.level = (global as any).loglevel;
 
 export default class {
 
@@ -65,6 +65,8 @@ export default class {
       return;
     }
 
+    logger.debug(`pulling feed ${lock.feed[lock.workon]}`);
+
     const promise = new Promise(resolve => {
       let match = lock.feed[lock.workon].match(/https:\/\/twitter.com\/([^\/]+)\/lists\/([^\/]+)/);
       if (match) {
@@ -94,6 +96,7 @@ export default class {
     });
 
     promise.then((tweets: any) => {
+      logger.debug(`api returned ${JSON.stringify(tweets)} for feed ${lock.feed[lock.workon]}`);
       if (tweets.length === 0) return;
       if (lock.threads[lock.feed[lock.workon]].offset === -1) {
         lock.threads[lock.feed[lock.workon]].offset = tweets[0].id_str;
@@ -112,7 +115,10 @@ export default class {
           });
         });
       }, this.webshotDelay)
-        .then(() => lock.threads[lock.feed[lock.workon]].offset = tweets[0].id_str);
+        .then(() => {
+          lock.threads[lock.feed[lock.workon]].offset = tweets[0].id_str;
+          lock.threads[lock.feed[lock.workon]].updatedAt = new Date().toString();
+        });
 
     })
       .then(() => {

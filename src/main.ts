@@ -5,10 +5,6 @@ import * as fs from 'fs';
 import * as log4js from 'log4js';
 import * as path from 'path';
 
-import { list, sub, unsub } from './command';
-import QQBot from './cqhttp';
-import Worker from './twitter';
-
 const logger = log4js.getLogger();
 logger.level = 'info';
 
@@ -81,6 +77,15 @@ if (config.work_interval === undefined) {
 if (config.webshot_delay === undefined) {
   config.webshot_delay = 5000;
 }
+if (config.loglevel === undefined) {
+  config.loglevel = 'info';
+}
+
+(global as any).loglevel = config.loglevel;
+
+import { list, sub, unsub } from './command';
+import QQBot from './cqhttp';
+import Worker from './twitter';
 
 let lock: ILock;
 if (fs.existsSync(path.resolve(config.lockfile))) {

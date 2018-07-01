@@ -6,7 +6,7 @@ const pngjs_1 = require("pngjs");
 const read = require("read-all-stream");
 const webshot = require("webshot");
 const logger = log4js.getLogger('webshot');
-logger.level = 'info';
+logger.level = global.loglevel;
 function renderWebshot(url, height, webshotDelay) {
     const promise = new Promise(resolve => {
         const options = {

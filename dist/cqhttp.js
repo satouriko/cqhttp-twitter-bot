@@ -4,7 +4,7 @@ const CQWebsocket = require("cq-websocket");
 const log4js = require("log4js");
 const helper_1 = require("./helper");
 const logger = log4js.getLogger('cq-websocket');
-logger.level = 'info';
+logger.level = global.loglevel;
 class default_1 {
     constructor(opt) {
         this.retryInterval = 1000;
@@ -63,16 +63,16 @@ class default_1 {
                 }
             });
             this.bot.on('api.send.pre', (type, apiRequest) => {
-                logger.info(`sending request ${type}: ${JSON.stringify(apiRequest)}`);
+                logger.debug(`sending request ${type}: ${JSON.stringify(apiRequest)}`);
             });
             this.bot.on('api.send.post', (type) => {
-                logger.info(`sent request ${type}`);
+                logger.debug(`sent request ${type}`);
             });
             this.bot.on('api.response', (type, result) => {
                 if (result.retcode !== 0)
                     logger.warn(`${type} respond: ${JSON.stringify(result)}`);
                 else
-                    logger.info(`${type} respond: ${JSON.stringify(result)}`);
+                    logger.debug(`${type} respond: ${JSON.stringify(result)}`);
             });
         };
         this.connect = () => {
@@ -84,13 +84,13 @@ class default_1 {
             this.retryInterval *= 2;
             if (this.retryInterval > 300000)
                 this.retryInterval = 300000;
-            logger.info(`retrying in ${this.retryInterval / 1000}s...`);
+            logger.warn(`retrying in ${this.retryInterval / 1000}s...`);
             setTimeout(() => {
                 logger.warn('reconnecting to websocket...');
                 this.connect();
             }, this.retryInterval);
         };
-        logger.info(`init cqwebsocket for ${opt.host}:${opt.port}, with access_token ${opt.access_token}`);
+        logger.warn(`init cqwebsocket for ${opt.host}:${opt.port}, with access_token ${opt.access_token}`);
         this.botInfo = opt;
     }
 }

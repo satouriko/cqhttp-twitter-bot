@@ -4,7 +4,7 @@ import * as log4js from 'log4js';
 import command from './helper';
 
 const logger = log4js.getLogger('cq-websocket');
-logger.level = 'info';
+logger.level = (global as any).loglevel;
 
 interface IQQProps {
   access_token: string;
@@ -81,16 +81,16 @@ export default class {
     });
 
     this.bot.on('api.send.pre', (type, apiRequest) => {
-      logger.info(`sending request ${type}: ${JSON.stringify(apiRequest)}`);
+      logger.debug(`sending request ${type}: ${JSON.stringify(apiRequest)}`);
     });
 
     this.bot.on('api.send.post', (type) => {
-      logger.info(`sent request ${type}`);
+      logger.debug(`sent request ${type}`);
     });
 
     this.bot.on('api.response', (type, result) => {
       if (result.retcode !== 0) logger.warn(`${type} respond: ${JSON.stringify(result)}`);
-      else logger.info(`${type} respond: ${JSON.stringify(result)}`);
+      else logger.debug(`${type} respond: ${JSON.stringify(result)}`);
     });
 }
 
@@ -103,7 +103,7 @@ export default class {
   private reconnect = () => {
     this.retryInterval *= 2;
     if (this.retryInterval > 300000) this.retryInterval = 300000;
-    logger.info(`retrying in ${this.retryInterval / 1000}s...`);
+    logger.warn(`retrying in ${this.retryInterval / 1000}s...`);
     setTimeout(() => {
       logger.warn('reconnecting to websocket...');
       this.connect();
@@ -111,7 +111,7 @@ export default class {
   }
 
   constructor(opt: IQQProps) {
-    logger.info(`init cqwebsocket for ${opt.host}:${opt.port}, with access_token ${opt.access_token}`);
+    logger.warn(`init cqwebsocket for ${opt.host}:${opt.port}, with access_token ${opt.access_token}`);
     this.botInfo = opt;
   }
 }

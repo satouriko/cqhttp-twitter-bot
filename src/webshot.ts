@@ -5,7 +5,7 @@ import * as read from 'read-all-stream';
 import * as webshot from 'webshot';
 
 const logger = log4js.getLogger('webshot');
-logger.level = 'info';
+logger.level = (global as any).loglevel;
 
 function renderWebshot(url: string, height: number, webshotDelay: number): Promise<string> {
   const promise = new Promise<{ data: string, boundary: null | number }>(resolve => {

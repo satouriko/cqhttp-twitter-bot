@@ -5,9 +5,6 @@ const commandLineUsage = require("command-line-usage");
 const fs = require("fs");
 const log4js = require("log4js");
 const path = require("path");
-const command_1 = require("./command");
-const cqhttp_1 = require("./cqhttp");
-const twitter_1 = require("./twitter");
 const logger = log4js.getLogger();
 logger.level = 'info';
 const sections = [
@@ -74,6 +71,13 @@ if (config.work_interval === undefined) {
 if (config.webshot_delay === undefined) {
     config.webshot_delay = 5000;
 }
+if (config.loglevel === undefined) {
+    config.loglevel = 'info';
+}
+global.loglevel = config.loglevel;
+const command_1 = require("./command");
+const cqhttp_1 = require("./cqhttp");
+const twitter_1 = require("./twitter");
 let lock;
 if (fs.existsSync(path.resolve(config.lockfile))) {
     try {

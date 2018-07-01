@@ -16,6 +16,7 @@ interface ILock {
     [key: string]:
       {
         offset: number,
+        updatedAt: string,
         subscribers: IChat[],
       }
   }
