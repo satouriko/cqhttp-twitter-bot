@@ -1,0 +1,19 @@
+{
+  "bin": {
+    "cqhttp-twitter-bot": "./bin/main.js"
+  },
+  "scripts": {
+    "build": "tsc --outDir bin"
+  },
+  "dependencies": {
+    "command-line-usage": "^5.0.5",
+    "cq-websocket": "^1.2.5",
+    "log4js": "^2.10.0",
+    "twitter": "^1.7.1",
+    "typescript": "^2.9.2",
+    "webshot": "^0.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.5.1"
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "linterOptions": {
+    "exclude": [
+      "node_modules/**/*.ts"
+    ]
+  },
+  "rules": {
+    "curly": [true, "ignore-same-line"],
+    "max-classes-per-file": false,
+    "member-ordering": false,
+    "no-console": false,
+    "array-type": [true, "array"],
+    "object-literal-sort-keys": false,
+    "no-angle-bracket-type-assertion": true,
+    "quotemark": [true, "single", "avoid-escape", "avoid-template"],
+    "semicolon": [true, "always"],
+    "encoding": true,
+    "eofline": true,
+    "arrow-return-shorthand": [true, "multiline"],
+    "indent": [true, "spaces", 2],
+    "linebreak-style": [true, "LF"],
+    "comment-format": [true, "check-lowercase", {"ignore-words": ["TODO", "HACK", "BUG"]}],
+    "no-require-imports": true,
+    "prefer-const": true,
+    "prefer-method-signature": true,
+    "trailing-comma": [
+      true,
+      {
+        "multiline": {
+          "objects": "always",
+          "arrays": "always",
+          "functions": "never",
+          "typeLiterals": "always",
+          "imports": "never",
+          "exports": "never"
+        },
+        "singleline": "never",
+        "esSpecCompliant": true
+      }
+    ],
+    "no-consecutive-blank-lines": true,
+    "no-irregular-whitespace": true,
+    "no-unnecessary-callback-wrapper": true,
+    "object-literal-key-quotes": [true, "as-needed"],
+    "one-line": [true, "check-catch", "check-finally", "check-else", "check-open-brace", "check-whitespace"],
+    "ordered-imports": [
+      true,
+      {
+        "grouped-imports": true,
+        "import-sources-order": "lowercase-last",
+        "named-imports-order": "lowercase-first",
+        "module-source-path": "full"
+
+      }
+    ],
+    "prefer-while": true,
+    "space-before-function-paren": [
+      true,
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always",
+        "method": "never",
+        "constructor": "never"
+      }
+    ],
+    "space-within-parens": 0,
+    "switch-final-break": true,
+    "whitespace": [
+      true,
+      "check-branch",
+      "check-decl",
+      "check-operator",
+      "check-module",
+      "check-separator",
+      "check-rest-spread",
+      "check-type",
+      "check-typecast",
+      "check-type-operator"
+    ]
+  },
+  "jsRules": {
+    "curly": [true, "ignore-same-line"],
+    "max-classes-per-file": false,
+    "member-ordering": false,
+    "no-console": false,
+    "object-literal-sort-keys": false,
+    "quotemark": [true, "single", "avoid-escape", "avoid-template"],
+    "semicolon": [true, "always"],
+    "encoding": true,
+    "eofline": true,
+    "arrow-return-shorthand": [true, "multiline"],
+    "indent": [true, "spaces", 2],
+    "linebreak-style": [true, "LF"],
+    "comment-format": [true, "check-lowercase", {"ignore-words": ["TODO", "HACK", "BUG"]}],
+    "no-require-imports": true,
+    "prefer-const": true,
+    "trailing-comma": [
+      true,
+      {
+        "multiline": {
+          "objects": "always",
+          "arrays": "always",
+          "functions": "never",
+          "typeLiterals": "always",
+          "imports": "never",
+          "exports": "never"
+        },
+        "singleline": "never",
+        "esSpecCompliant": true
+      }
+    ],
+    "no-consecutive-blank-lines": true,
+    "no-irregular-whitespace": true,
+    "no-unnecessary-callback-wrapper": true,
+    "object-literal-key-quotes": [true, "as-needed"],
+    "one-line": [true, "check-catch", "check-finally", "check-else", "check-open-brace", "check-whitespace"],
+    "ordered-imports": [
+      true,
+      {
+        "grouped-imports": true,
+        "import-sources-order": "lowercase-last",
+        "named-imports-order": "lowercase-first",
+        "module-source-path": "full"
+
+      }
+    ],
+    "prefer-while": true,
+    "space-before-function-paren": [
+      true,
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always",
+        "method": "never",
+        "constructor": "never"
+      }
+    ],
+    "space-within-parens": 0,
+    "switch-final-break": true,
+    "whitespace": [
+      true,
+      "check-branch",
+      "check-decl",
+      "check-operator",
+      "check-module",
+      "check-separator",
+      "check-rest-spread",
+      "check-type",
+      "check-typecast",
+      "check-type-operator"
+    ]
+  }
+}
