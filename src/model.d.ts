@@ -1,4 +1,4 @@
-declare enum ChatType {
+declare const enum ChatType {
   Private = 'private',
   Group = 'group',
   Discuss = 'discuss',

@@ -29,13 +29,13 @@ class default_1 {
                     chatID: 0,
                 };
                 switch (context.message_type) {
-                    case ChatType.Private:
+                    case "private" /* Private */:
                         chat.chatID = context.user_id;
                         break;
-                    case ChatType.Group:
+                    case "group" /* Group */:
                         chat.chatID = context.group_id;
                         break;
-                    case ChatType.Discuss:
+                    case "discuss" /* Discuss */:
                         chat.chatID = context.discuss_id;
                 }
                 const cmdObj = helper_1.default(context.raw_message);
@@ -60,12 +60,7 @@ class default_1 {
         this.connect = () => {
             this.initWebsocket();
             logger.warn('connecting to websocket...');
-            try {
-                this.bot.connect();
-            }
-            catch (err) {
-                this.reconnect();
-            }
+            this.bot.connect();
         };
         this.reconnect = () => {
             this.retryInterval *= 2;
