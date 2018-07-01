@@ -1,6 +1,7 @@
 import * as CQWebsocket from 'cq-websocket';
 import * as log4js from 'log4js';
-import command from './command';
+
+import command from './helper';
 
 const logger = log4js.getLogger('cq-websocket');
 logger.level = 'info';
@@ -9,9 +10,9 @@ interface IQQProps {
   access_token: string;
   host: string;
   port: number;
-  list: (chat: IChat, args: string[], bot: CQWebsocket) => void;
-  sub: (chat: IChat, args: string[], bot: CQWebsocket) => void;
-  unsub: (chat: IChat, args: string[], bot: CQWebsocket) => void;
+  list(chat: IChat, args: string[]): string;
+  sub(chat: IChat, args: string[]): string;
+  unsub(chat: IChat, args: string[]): string;
 }
 
 export default class {
@@ -21,7 +22,7 @@ export default class {
   private connect = () => {
     logger.warn('connecting to websocket...');
     this.bot.connect();
-  };
+  }
 
   private reconnect = () => {
     this.retryInterval *= 2;
@@ -31,7 +32,7 @@ export default class {
       logger.warn('reconnecting to websocket...');
       this.connect();
     }, this.retryInterval);
-  };
+  }
 
   constructor(opt: IQQProps) {
     logger.info(`init cqwebsocket for ${opt.host}:${opt.port}, with access_token ${opt.access_token}`);
@@ -74,22 +75,18 @@ export default class {
           break;
         case ChatType.Discuss:
           chat.chatID = context.discuss_id;
-          break;
       }
-      let cmdObj = command(context.raw_message);
+      const cmdObj = command(context.raw_message);
       switch (cmdObj.cmd) {
         case 'twitter_sub':
         case 'twitter_subscribe':
-          opt.sub(chat, cmdObj.args, this.bot);
-          return;
+          return opt.sub(chat, cmdObj.args);
         case 'twitter_unsub':
         case 'twitter_unsubscribe':
-          opt.unsub(chat, cmdObj.args, this.bot);
-          return;
+          return opt.unsub(chat, cmdObj.args);
         case 'ping':
         case 'twitter':
-          opt.list(chat, cmdObj.args, this.bot);
-          return;
+          return opt.list(chat, cmdObj.args);
         case 'help':
           return `推特搬运机器人：
 /twitter - 查询当前聊天中的订阅
@@ -99,4 +96,4 @@ export default class {
     });
 
   }
-};
+}

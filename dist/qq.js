@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const CQWebsocket = require("cq-websocket");
 const log4js = require("log4js");
-const command_1 = require("./command");
+const helper_1 = require("./helper");
 const logger = log4js.getLogger('cq-websocket');
 logger.level = 'info';
 class default_1 {
@@ -57,22 +57,18 @@ class default_1 {
                     break;
                 case ChatType.Discuss:
                     chat.chatID = context.discuss_id;
-                    break;
             }
-            let cmdObj = command_1.default(context.raw_message);
+            const cmdObj = helper_1.default(context.raw_message);
             switch (cmdObj.cmd) {
                 case 'twitter_sub':
                 case 'twitter_subscribe':
-                    opt.sub(chat, cmdObj.args, this.bot);
-                    return;
+                    return opt.sub(chat, cmdObj.args);
                 case 'twitter_unsub':
                 case 'twitter_unsubscribe':
-                    opt.unsub(chat, cmdObj.args, this.bot);
-                    return;
+                    return opt.unsub(chat, cmdObj.args);
                 case 'ping':
                 case 'twitter':
-                    opt.list(chat, cmdObj.args, this.bot);
-                    return;
+                    return opt.list(chat, cmdObj.args);
                 case 'help':
                     return `推特搬运机器人：
 /twitter - 查询当前聊天中的订阅
@@ -83,4 +79,3 @@ class default_1 {
     }
 }
 exports.default = default_1;
-;

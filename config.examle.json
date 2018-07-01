@@ -1,5 +1,10 @@
 {
   "cq_ws_host": "127.0.0.1",
-  "cq_ws_port": "6700",
-  "cq_access_token": ""
+  "cq_ws_port": 6700,
+  "cq_access_token": "",
+  "twitter_consumer_key": "",
+  "twitter_consumer_secret": "",
+  "twitter_access_token_key": "",
+  "twitter_access_token_secret": "",
+  "lockfile": "subscriber.lock"
 }

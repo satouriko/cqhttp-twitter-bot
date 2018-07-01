@@ -2,30 +2,33 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const commandLineUsage = require("command-line-usage");
+const fs = require("fs");
 const log4js = require("log4js");
 const path = require("path");
+const command_1 = require("./command");
 const qq_1 = require("./qq");
+const twitter_1 = require("./twitter");
 const logger = log4js.getLogger();
 logger.level = 'info';
 const sections = [
     {
         header: 'CQHTTP Twitter Bot',
-        content: 'The QQ Bot that forwards twitters.'
+        content: 'The QQ Bot that forwards twitters.',
     },
     {
         header: 'Synopsis',
         content: [
             '$ cqhttp-twitter-bot {underline config.json}',
-            '$ cqhttp-twitter-bot {bold --help}'
-        ]
+            '$ cqhttp-twitter-bot {bold --help}',
+        ],
     },
     {
         header: 'Documentation',
         content: [
             'Project home: {underline https://github.com/rikakomoe/cqhttp-twitter-bot}',
-            'Example config: {underline https://qwqq.pw/b96yt}'
-        ]
-    }
+            'Example config: {underline https://qwqq.pw/b96yt}',
+        ],
+    },
 ];
 const usage = commandLineUsage(sections);
 const args = process.argv.slice(2);
@@ -39,7 +42,7 @@ try {
     config = require(path.resolve(configPath));
 }
 catch (e) {
-    console.log("Failed to parse config file: ", configPath);
+    console.log('Failed to parse config file: ', configPath);
     console.log(usage);
     process.exit(1);
 }
@@ -55,22 +58,45 @@ if (config.cq_access_token === undefined) {
     config.cq_access_token = '';
     logger.warn('cq_access_token is undefined, use empty string as default');
 }
-function handler(chat, args, bot) {
-    const config = {
-        message_type: chat.chatType,
-        user_id: chat.chatID,
-        group_id: chat.chatID,
-        discuss_id: chat.chatID,
-        message: JSON.stringify(args),
+if (config.lockfile === undefined) {
+    config.lockfile = 'subscriber.lock';
+}
+fs.access(path.resolve(config.lockfile), fs.constants.W_OK, err => {
+    if (err) {
+        logger.fatal(`cannot write lockfile ${path.resolve(config.lockfile)}, permission denied`);
+        process.exit(1);
+    }
+});
+let lock;
+if (fs.existsSync(path.resolve(config.lockfile))) {
+    try {
+        lock = require(path.resolve(config.lockfile));
+    }
+    catch (e) {
+        logger.error('Failed to parse lockfile: ', config.lockfile);
+        lock = {
+            workon: 0,
+            feed: [],
+            threads: {},
+        };
+    }
+}
+else {
+    lock = {
+        workon: 0,
+        feed: [],
+        threads: {},
     };
-    bot('send_msg', config);
 }
 const qq = new qq_1.default({
     access_token: config.cq_access_token,
     host: config.cq_ws_host,
     port: config.cq_ws_port,
-    list: handler,
-    sub: handler,
-    unsub: handler,
+    list: (c, a) => command_1.list(c, a, lock),
+    sub: (c, a) => command_1.sub(c, a, lock),
+    unsub: (c, a) => command_1.unsub(c, a, lock),
 });
+setTimeout(() => {
+    twitter_1.default(lock);
+}, 60000);
 qq.bot.connect();

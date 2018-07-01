@@ -2,7 +2,8 @@
   "extends": ["tslint:recommended", "tslint-config-prettier"],
   "linterOptions": {
     "exclude": [
-      "node_modules/**/*.ts"
+      "node_modules/**/*.ts",
+      "dist/*.js"
     ]
   },
   "rules": {
@@ -22,6 +23,7 @@
     "linebreak-style": [true, "LF"],
     "comment-format": [true, "check-lowercase", {"ignore-words": ["TODO", "HACK", "BUG"]}],
     "no-require-imports": true,
+    "no-var-requires": false,
     "prefer-const": true,
     "prefer-method-signature": true,
     "trailing-comma": [
