@@ -7,7 +7,7 @@ import * as path from 'path';
 
 import { list, sub, unsub } from './command';
 import QQBot from './cqhttp';
-import work from './twitter';
+import Worker from './twitter';
 
 const logger = log4js.getLogger();
 logger.level = 'info';
@@ -53,6 +53,13 @@ try {
   process.exit(1);
 }
 
+if (config.twitter_consumer_key === undefined ||
+  config.twitter_consumer_secret === undefined ||
+  config.twitter_access_token_key === undefined ||
+  config.twitter_access_token_secret === undefined) {
+  console.log('twitter_consumer_key twitter_consumer_secret twitter_access_token_key twitter_access_token_secret are required');
+  process.exit(1);
+}
 if (config.cq_ws_host === undefined) {
   config.cq_ws_host = '127.0.0.1';
   logger.warn('cq_ws_host is undefined, use 127.0.0.1 as default');
@@ -117,12 +124,15 @@ const qq = new QQBot({
   unsub: (c, a) => unsub(c, a, lock, config.lockfile),
 });
 
-setTimeout(() => {
-  work({
-    lock,
-    lockfile: config.lockfile,
-    workInterval: config.work_interval,
-  });
-}, config.work_interval * 1000);
+const worker = new Worker({
+  consumer_key: config.twitter_consumer_key,
+  consumer_secret: config.twitter_consumer_secret,
+  access_token_key: config.twitter_access_token_key,
+  access_token_secret: config.twitter_access_token_secret,
+  lock,
+  lockfile: config.lockfile,
+  workInterval: config.work_interval,
+});
+setTimeout(worker.work, config.work_interval * 1000);
 
 qq.connect();
