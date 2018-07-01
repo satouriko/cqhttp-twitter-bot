@@ -78,6 +78,9 @@ if (config.lockfile === undefined) {
 if (config.work_interval === undefined) {
   config.work_interval = 60;
 }
+if (config.webshot_delay === undefined) {
+  config.webshot_delay = 5000;
+}
 
 let lock: ILock;
 if (fs.existsSync(path.resolve(config.lockfile))) {
@@ -132,6 +135,8 @@ const worker = new Worker({
   lock,
   lockfile: config.lockfile,
   workInterval: config.work_interval,
+  bot: qq,
+  webshotDelay: config.webshot_delay,
 });
 setTimeout(worker.work, config.work_interval * 1000);
 

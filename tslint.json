@@ -24,6 +24,7 @@
     "comment-format": [true, "check-lowercase", {"ignore-words": ["TODO", "HACK", "BUG"]}],
     "no-require-imports": true,
     "no-var-requires": false,
+    "no-bitwise": false,
     "prefer-const": true,
     "prefer-method-signature": true,
     "trailing-comma": [
@@ -97,6 +98,8 @@
     "linebreak-style": [true, "LF"],
     "comment-format": [true, "check-lowercase", {"ignore-words": ["TODO", "HACK", "BUG"]}],
     "no-require-imports": true,
+    "no-var-requires": false,
+    "no-bitwise": false,
     "prefer-const": true,
     "trailing-comma": [
       true,

@@ -1,32 +1,33 @@
+import * as http from 'http';
 import * as log4js from 'log4js';
-import * as webshot from 'webshot';
+import { PNG } from 'pngjs';
 import * as read from 'read-all-stream';
-import {PNG} from 'pngjs';
+import * as webshot from 'webshot';
 
 const logger = log4js.getLogger('webshot');
 logger.level = 'info';
 
-function renderWebshot(url: string, height: number): Promise<string> {
-  let promise = new Promise<{ data: string, boundary: null | number }>(resolve => {
+function renderWebshot(url: string, height: number, webshotDelay: number): Promise<string> {
+  const promise = new Promise<{ data: string, boundary: null | number }>(resolve => {
     const options = {
       windowSize: {
         width: 1080,
-        height: height,
+        height,
       },
       userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
-      renderDelay: 5000,
+      renderDelay: webshotDelay,
       quality: 100,
       customCSS: 'html{zoom:2}header{display:none!important}',
     };
     logger.info(`shooting ${options.windowSize.width}*${height} webshot for ${url}`);
     webshot(url, options).pipe(new PNG({
-      filterType: 4
+      filterType: 4,
     }))
       .on('parsed', function () {
         let boundary = null;
         for (let y = 0; y < this.height; y++) {
           const x = 0;
-          let idx = (this.width * y + x) << 2;
+          const idx = (this.width * y + x) << 2;
           if (this.data[idx] !== 255) {
             boundary = y;
             break;
@@ -38,36 +39,57 @@ function renderWebshot(url: string, height: number): Promise<string> {
           this.height = boundary;
           read(this.pack(), 'base64').then(data => {
             logger.info(`finished webshot for ${url}`);
-            resolve({ data, boundary });
+            resolve({data, boundary});
           });
         } else if (height >= 8 * 1920) {
-          logger.warn(`too large, consider as a bug, returning`);
+          logger.warn('too large, consider as a bug, returning');
           read(this.pack(), 'base64').then(data => {
             logger.info(`finished webshot for ${url}`);
-            resolve({ data, boundary: 0 });
+            resolve({data, boundary: 0});
           });
         } else {
-          logger.info(`unable to found boundary, try shooting a larger image`);
-          resolve({ data: '', boundary });
+          logger.info('unable to found boundary, try shooting a larger image');
+          resolve({data: '', boundary});
         }
       });
   });
   return promise.then(data => {
-    if (data.boundary === null) return renderWebshot(url, height + 1920);
+    if (data.boundary === null) return renderWebshot(url, height + 1920, webshotDelay);
     else return data.data;
-  })
+  });
 }
 
-/*function fetchImage(): Promise<string> {
+function fetchImage(url: string): Promise<string> {
+  return new Promise<string>(resolve => {
+    logger.info(`fetching ${url}`);
+    http.get(url, res => {
+      if (res.statusCode === 200) {
+        read(res, 'base64').then(data => {
+          logger.info(`successfully fetched ${url}`);
+          return data;
+        });
+      }
+    });
+  });
+}
 
-}*/
-
-export default function (twitter, callback) {
-  twitter.forEach(twi => {
+export default function (tweets, callback, webshotDelay: number) {
+  tweets.forEach(twi => {
+    let cqstr = '';
     const url = `https://mobile.twitter.com/${twi.user.screen_name}/status/${twi.id_str}`;
-    renderWebshot(url, 1920)
+    let promise = renderWebshot(url, 1920, webshotDelay)
       .then(base64Webshot => {
-        console.log(base64Webshot);
-      })
+        if (base64Webshot) cqstr += `[CQ:image,file=base64://${base64Webshot}]`;
+      });
+    if (twi.extended_entities) {
+      twi.extended_entities.media.forEach(media => {
+        promise = promise.then(() => fetchImage(media.media_url_https))
+          .then(base64Image => {
+            if (base64Image) cqstr += `[CQ:image,file=base64://${base64Image}]`;
+          });
+      });
+    }
+    // TODO: Translate
+    promise.then(() => callback(cqstr));
   });
 }

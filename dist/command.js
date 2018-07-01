@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
-const path = require("path");
 const log4js = require("log4js");
+const path = require("path");
 const logger = log4js.getLogger('command');
 logger.level = 'info';
 function sub(chat, args, lock, lockfile) {
