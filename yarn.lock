@@ -2,9 +2,15 @@
 # yarn lockfile v1
 
 
-"@types/node@^10.5.1":
+"@types/node@*", "@types/node@^10.5.1":
   version "10.5.1"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.5.1.tgz#d578446f4abff5c0b49ade9b4e5274f6badaadfc"
+
+"@types/pngjs@^3.3.2":
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/@types/pngjs/-/pngjs-3.3.2.tgz#8ed3bd655ab3a92ea32ada7a21f618e63b93b1d4"
+  dependencies:
+    "@types/node" "*"
 
 addressparser@1.0.1:
   version "1.0.1"
