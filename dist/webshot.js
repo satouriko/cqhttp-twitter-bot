@@ -48,7 +48,7 @@ function renderWebshot(url, height) {
         });
     });
     return promise.then(data => {
-        if (data.boundary != null)
+        if (data.boundary === null)
             return renderWebshot(url, height * 2);
         else
             return data.data;
