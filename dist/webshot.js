@@ -99,5 +99,6 @@ function default_1(tweets, callback, webshotDelay) {
         // TODO: Translate
         promise.then(() => callback(cqstr));
     });
+    return promise;
 }
 exports.default = default_1;

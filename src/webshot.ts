@@ -73,7 +73,7 @@ function fetchImage(url: string): Promise<string> {
   });
 }
 
-export default function (tweets, callback, webshotDelay: number) {
+export default function (tweets, callback, webshotDelay: number): Promise<void> {
   let promise = new Promise<void>(resolve => {
     resolve();
   });
@@ -95,4 +95,5 @@ export default function (tweets, callback, webshotDelay: number) {
     // TODO: Translate
     promise.then(() => callback(cqstr));
   });
+  return promise;
 }

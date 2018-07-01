@@ -58,6 +58,7 @@ export default class {
       !lock.threads[lock.feed[lock.workon]].subscribers ||
       lock.threads[lock.feed[lock.workon]].subscribers.length === 0) {
       logger.warn(`nobody subscribes thread ${lock.feed[lock.workon]}, removing from feed`);
+      delete lock.threads[lock.feed[lock.workon]];
       lock.feed.splice(lock.workon, 1);
       fs.writeFileSync(path.resolve(this.lockfile), JSON.stringify(lock));
       this.work();
@@ -94,21 +95,25 @@ export default class {
 
     promise.then((tweets: any) => {
       if (tweets.length === 0) return;
-      if (lock.threads[lock.feed[lock.workon]].offset !== -1) {
-        if (lock.threads[lock.feed[lock.workon]].offset === 0) tweets.splice(1);
-        webshot(tweets, msg => {
-          lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
-            this.bot.bot('send_msg', {
-              message_type: subscriber.chatType,
-              user_id: subscriber.chatID,
-              group_id: subscriber.chatID,
-              discuss_id: subscriber.chatID,
-              message: msg,
-            });
-          });
-        }, this.webshotDelay);
+      if (lock.threads[lock.feed[lock.workon]].offset === -1) {
+        lock.threads[lock.feed[lock.workon]].offset = +tweets[0].id_str;
+        return;
       }
-      lock.threads[lock.feed[lock.workon]].offset = tweets[0].id;
+      if (lock.threads[lock.feed[lock.workon]].offset === 0) tweets.splice(1);
+      return webshot(tweets, msg => {
+        lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
+          logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
+          this.bot.bot('send_msg', {
+            message_type: subscriber.chatType,
+            user_id: subscriber.chatID,
+            group_id: subscriber.chatID,
+            discuss_id: subscriber.chatID,
+            message: msg,
+          });
+        });
+      }, this.webshotDelay)
+        .then(() => lock.threads[lock.feed[lock.workon]].offset = +tweets[0].id_str);
+
     })
       .then(() => {
         lock.workon++;

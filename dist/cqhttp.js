@@ -62,6 +62,12 @@ class default_1 {
 /twitter_unsubscribe [链接] - 退订 Twitter 搬运`;
                 }
             });
+            this.bot.on('api.send.pre', (type, apiRequest) => {
+                logger.info(`sending request ${type}: ${JSON.stringify(apiRequest)}`);
+            });
+            this.bot.on('api.send.post', (type) => {
+                logger.info(`sent request ${type}`);
+            });
         };
         this.connect = () => {
             this.initWebsocket();
