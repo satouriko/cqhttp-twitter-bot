@@ -2,6 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const path = require("path");
+const log4js = require("log4js");
+const logger = log4js.getLogger('command');
+logger.level = 'info';
 function sub(chat, args, lock, lockfile) {
     if (args.length === 0) {
         return '找不到要订阅的链接。';
@@ -42,6 +45,7 @@ https://twitter.com/rikakomoe/lists/lovelive`;
     });
     if (!flag)
         lock.threads[link].subscribers.push(chat);
+    logger.warn(`chat ${JSON.stringify(chat)} has subscribed ${link}`);
     fs.writeFileSync(path.resolve(lockfile), JSON.stringify(lock));
     return `已为此聊天订阅 ${link}`;
 }
@@ -63,6 +67,7 @@ function unsub(chat, args, lock, lockfile) {
     });
     if (flag) {
         fs.writeFileSync(path.resolve(lockfile), JSON.stringify(lock));
+        logger.warn(`chat ${JSON.stringify(chat)} has unsubscribed ${link}`);
         return `已为此聊天退订 ${link}`;
     }
     return '您没有订阅此链接。\n' + list(chat, args, lock);

@@ -32,7 +32,7 @@ function renderWebshot(url: string, height: number): Promise<string> {
             break;
           }
         }
-        if (boundary != null) {
+        if (boundary !== null) {
           logger.info(`found boundary at ${boundary}, cropping image`);
           this.data = this.data.slice(0, (this.width * boundary) << 2);
           this.height = boundary;
@@ -40,14 +40,20 @@ function renderWebshot(url: string, height: number): Promise<string> {
             logger.info(`finished webshot for ${url}`);
             resolve({ data, boundary });
           });
+        } else if (height >= 8 * 1920) {
+          logger.warn(`too large, consider as a bug, returning`);
+          read(this.pack(), 'base64').then(data => {
+            logger.info(`finished webshot for ${url}`);
+            resolve({ data, boundary: 0 });
+          });
         } else {
-          logger.warn(`unable to found boundary, try shooting a larger image`);
+          logger.info(`unable to found boundary, try shooting a larger image`);
           resolve({ data: '', boundary });
         }
       });
   });
   return promise.then(data => {
-    if (data.boundary === null) return renderWebshot(url, height * 2);
+    if (data.boundary === null) return renderWebshot(url, height + 1920);
     else return data.data;
   })
 }
