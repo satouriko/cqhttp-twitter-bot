@@ -1,9 +1,9 @@
 {
   "bin": {
-    "cqhttp-twitter-bot": "./bin/main.js"
+    "cqhttp-twitter-bot": "./dist/main.js"
   },
   "scripts": {
-    "build": "tsc --outDir bin"
+    "build": "tsc --outDir dist"
   },
   "dependencies": {
     "command-line-usage": "^5.0.5",

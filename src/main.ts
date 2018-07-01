@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const commandLineUsage = require('command-line-usage');
-const log4js = require('log4js');
-const path = require('path');
+import * as commandLineUsage from 'command-line-usage';
+import * as log4js from 'log4js';
+import * as path from 'path';
 
 const logger = log4js.getLogger();
 logger.level = 'info';

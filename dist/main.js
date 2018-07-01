@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-const commandLineUsage = require('command-line-usage');
-const log4js = require('log4js');
-const path = require('path');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const commandLineUsage = require("command-line-usage");
+const log4js = require("log4js");
+const path = require("path");
 const logger = log4js.getLogger();
 logger.level = 'info';
 const sections = [
