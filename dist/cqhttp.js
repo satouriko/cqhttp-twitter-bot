@@ -68,6 +68,12 @@ class default_1 {
             this.bot.on('api.send.post', (type) => {
                 logger.info(`sent request ${type}`);
             });
+            this.bot.on('api.response', (type, result) => {
+                if (result.retcode !== 0)
+                    logger.warn(`${type} respond: ${JSON.stringify(result)}`);
+                else
+                    logger.info(`${type} respond: ${JSON.stringify(result)}`);
+            });
         };
         this.connect = () => {
             this.initWebsocket();
