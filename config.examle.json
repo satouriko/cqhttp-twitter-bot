@@ -1,3 +1,5 @@
 {
-
+  "cq_ws_host": "127.0.0.1",
+  "cq_ws_port": "6700",
+  "cq_access_token": ""
 }
