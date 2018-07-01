@@ -74,10 +74,13 @@ function fetchImage(url: string): Promise<string> {
 }
 
 export default function (tweets, callback, webshotDelay: number) {
+  let promise = new Promise<void>(resolve => {
+    resolve();
+  });
   tweets.forEach(twi => {
     let cqstr = '';
     const url = `https://mobile.twitter.com/${twi.user.screen_name}/status/${twi.id_str}`;
-    let promise = renderWebshot(url, 1920, webshotDelay)
+    promise = promise.then(() => renderWebshot(url, 1920, webshotDelay))
       .then(base64Webshot => {
         if (base64Webshot) cqstr += `[CQ:image,file=base64://${base64Webshot}]`;
       });

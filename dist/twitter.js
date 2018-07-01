@@ -24,7 +24,7 @@ class default_1 {
             if (!lock.threads[lock.feed[lock.workon]] ||
                 !lock.threads[lock.feed[lock.workon]].subscribers ||
                 lock.threads[lock.feed[lock.workon]].subscribers.length === 0) {
-                logger.error(`nobody subscribes thread ${lock.feed[lock.workon]}, removing from feed`);
+                logger.warn(`nobody subscribes thread ${lock.feed[lock.workon]}, removing from feed`);
                 lock.feed.splice(lock.workon, 1);
                 fs.writeFileSync(path.resolve(this.lockfile), JSON.stringify(lock));
                 this.work();
@@ -64,6 +64,8 @@ class default_1 {
                 if (tweets.length === 0)
                     return;
                 if (lock.threads[lock.feed[lock.workon]].offset !== -1) {
+                    if (lock.threads[lock.feed[lock.workon]].offset === 0)
+                        tweets.splice(1);
                     webshot_1.default(tweets, msg => {
                         lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
                             this.bot.bot('send_msg', {
