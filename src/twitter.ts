@@ -96,7 +96,7 @@ export default class {
     promise.then((tweets: any) => {
       if (tweets.length === 0) return;
       if (lock.threads[lock.feed[lock.workon]].offset === -1) {
-        lock.threads[lock.feed[lock.workon]].offset = +tweets[0].id_str;
+        lock.threads[lock.feed[lock.workon]].offset = tweets[0].id_str;
         return;
       }
       if (lock.threads[lock.feed[lock.workon]].offset === 0) tweets.splice(1);
@@ -112,7 +112,7 @@ export default class {
           });
         });
       }, this.webshotDelay)
-        .then(() => lock.threads[lock.feed[lock.workon]].offset = +tweets[0].id_str);
+        .then(() => lock.threads[lock.feed[lock.workon]].offset = tweets[0].id_str);
 
     })
       .then(() => {

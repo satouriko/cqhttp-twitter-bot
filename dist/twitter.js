@@ -65,7 +65,7 @@ class default_1 {
                 if (tweets.length === 0)
                     return;
                 if (lock.threads[lock.feed[lock.workon]].offset === -1) {
-                    lock.threads[lock.feed[lock.workon]].offset = +tweets[0].id_str;
+                    lock.threads[lock.feed[lock.workon]].offset = tweets[0].id_str;
                     return;
                 }
                 if (lock.threads[lock.feed[lock.workon]].offset === 0)
@@ -82,7 +82,7 @@ class default_1 {
                         });
                     });
                 }, this.webshotDelay)
-                    .then(() => lock.threads[lock.feed[lock.workon]].offset = +tweets[0].id_str);
+                    .then(() => lock.threads[lock.feed[lock.workon]].offset = tweets[0].id_str);
             })
                 .then(() => {
                 lock.workon++;
