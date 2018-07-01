@@ -6,7 +6,7 @@ import * as log4js from 'log4js';
 import * as path from 'path';
 
 import { list, sub, unsub } from './command';
-import QQBot from './qq';
+import QQBot from './cqhttp';
 import work from './twitter';
 
 const logger = log4js.getLogger();
@@ -28,7 +28,7 @@ const sections = [
     header: 'Documentation',
     content: [
       'Project home: {underline https://github.com/rikakomoe/cqhttp-twitter-bot}',
-      'Example config: {underline https://qwqq.pw/b96yt}',
+      'Example config: {underline https://qwqq.pw/qpfhg}',
     ],
   },
 ];
@@ -68,6 +68,9 @@ if (config.cq_access_token === undefined) {
 if (config.lockfile === undefined) {
   config.lockfile = 'subscriber.lock';
 }
+if (config.work_interval === undefined) {
+  config.work_interval = 60;
+}
 
 let lock: ILock;
 if (fs.existsSync(path.resolve(config.lockfile))) {
@@ -101,6 +104,10 @@ if (fs.existsSync(path.resolve(config.lockfile))) {
   }
 }
 
+Object.keys(lock.threads).forEach(key => {
+  lock.threads[key].offset = -1;
+});
+
 const qq = new QQBot({
   access_token: config.cq_access_token,
   host: config.cq_ws_host,
@@ -111,7 +118,11 @@ const qq = new QQBot({
 });
 
 setTimeout(() => {
-  work(lock, config.lockfile);
-}, 60000);
+  work({
+    lock,
+    lockfile: config.lockfile,
+    workInterval: config.work_interval,
+  });
+}, config.work_interval * 1000);
 
 qq.connect();
