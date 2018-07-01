@@ -64,8 +64,10 @@ class default_1 {
             });
             promise.then((tweets) => {
                 logger.debug(`api returned ${JSON.stringify(tweets)} for feed ${lock.feed[lock.workon]}`);
-                if (tweets.length === 0)
+                if (tweets.length === 0) {
+                    lock.threads[lock.feed[lock.workon]].updatedAt = new Date().toString();
                     return;
+                }
                 if (lock.threads[lock.feed[lock.workon]].offset === -1) {
                     lock.threads[lock.feed[lock.workon]].offset = tweets[0].id_str;
                     return;
