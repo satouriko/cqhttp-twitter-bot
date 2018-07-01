@@ -6,7 +6,7 @@ const fs = require("fs");
 const log4js = require("log4js");
 const path = require("path");
 const command_1 = require("./command");
-const qq_1 = require("./qq");
+const cqhttp_1 = require("./cqhttp");
 const twitter_1 = require("./twitter");
 const logger = log4js.getLogger();
 logger.level = 'info';
@@ -26,7 +26,7 @@ const sections = [
         header: 'Documentation',
         content: [
             'Project home: {underline https://github.com/rikakomoe/cqhttp-twitter-bot}',
-            'Example config: {underline https://qwqq.pw/b96yt}',
+            'Example config: {underline https://qwqq.pw/qpfhg}',
         ],
     },
 ];
@@ -46,6 +46,13 @@ catch (e) {
     console.log(usage);
     process.exit(1);
 }
+if (config.twitter_consumer_key === undefined ||
+    config.twitter_consumer_secret === undefined ||
+    config.twitter_access_token_key === undefined ||
+    config.twitter_access_token_secret === undefined) {
+    console.log('twitter_consumer_key twitter_consumer_secret twitter_access_token_key twitter_access_token_secret are required');
+    process.exit(1);
+}
 if (config.cq_ws_host === undefined) {
     config.cq_ws_host = '127.0.0.1';
     logger.warn('cq_ws_host is undefined, use 127.0.0.1 as default');
@@ -60,6 +67,9 @@ if (config.cq_access_token === undefined) {
 }
 if (config.lockfile === undefined) {
     config.lockfile = 'subscriber.lock';
+}
+if (config.work_interval === undefined) {
+    config.work_interval = 60;
 }
 let lock;
 if (fs.existsSync(path.resolve(config.lockfile))) {
@@ -95,7 +105,10 @@ else {
         process.exit(1);
     }
 }
-const qq = new qq_1.default({
+Object.keys(lock.threads).forEach(key => {
+    lock.threads[key].offset = -1;
+});
+const qq = new cqhttp_1.default({
     access_token: config.cq_access_token,
     host: config.cq_ws_host,
     port: config.cq_ws_port,
@@ -103,7 +116,14 @@ const qq = new qq_1.default({
     sub: (c, a) => command_1.sub(c, a, lock, config.lockfile),
     unsub: (c, a) => command_1.unsub(c, a, lock, config.lockfile),
 });
-setTimeout(() => {
-    twitter_1.default(lock, config.lockfile);
-}, 60000);
+const worker = new twitter_1.default({
+    consumer_key: config.twitter_consumer_key,
+    consumer_secret: config.twitter_consumer_secret,
+    access_token_key: config.twitter_access_token_key,
+    access_token_secret: config.twitter_access_token_secret,
+    lock,
+    lockfile: config.lockfile,
+    workInterval: config.work_interval,
+});
+setTimeout(worker.work, config.work_interval * 1000);
 qq.connect();
