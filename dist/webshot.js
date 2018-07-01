@@ -18,6 +18,7 @@ function renderWebshot(url, height) {
             quality: 100,
             customCSS: 'html{zoom:2}header{display:none!important}',
         };
+        logger.info(`shooting ${options.windowSize.width}*${height} webshot for ${url}`);
         webshot(url, options).pipe(new pngjs_1.PNG({
             filterType: 4
         }))
@@ -32,13 +33,16 @@ function renderWebshot(url, height) {
                 }
             }
             if (boundary != null) {
+                logger.info(`found boundary at ${boundary}, cropping image`);
                 this.data = this.data.slice(0, (this.width * boundary) << 2);
                 this.height = boundary;
                 read(this.pack(), 'base64').then(data => {
+                    logger.info(`finished webshot for ${url}`);
                     resolve({ data, boundary });
                 });
             }
             else {
+                logger.warn(`unable to found boundary, try shooting a larger image`);
                 resolve({ data: '', boundary });
             }
         });
