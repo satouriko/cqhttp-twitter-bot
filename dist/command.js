@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function sub(chat, args, lock) {
+const fs = require("fs");
+const path = require("path");
+function sub(chat, args, lock, lockfile) {
     if (args.length === 0) {
         return '找不到要订阅的链接。';
     }
@@ -40,10 +42,11 @@ https://twitter.com/rikakomoe/lists/lovelive`;
     });
     if (!flag)
         lock.threads[link].subscribers.push(chat);
+    fs.writeFileSync(path.resolve(lockfile), JSON.stringify(lock));
     return `已为此聊天订阅 ${link}`;
 }
 exports.sub = sub;
-function unsub(chat, args, lock) {
+function unsub(chat, args, lock, lockfile) {
     if (args.length === 0) {
         return '找不到要退订的链接。';
     }
@@ -59,6 +62,7 @@ function unsub(chat, args, lock) {
         }
     });
     if (flag) {
+        fs.writeFileSync(path.resolve(lockfile), JSON.stringify(lock));
         return `已为此聊天退订 ${link}`;
     }
     return '您没有订阅此链接。\n' + list(chat, args, lock);

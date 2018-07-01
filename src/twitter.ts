@@ -1,12 +1,14 @@
+import * as fs from 'fs';
 import * as log4js from 'log4js';
+import * as path from 'path';
 
 const logger = log4js.getLogger('twitter');
 logger.level = 'info';
 
-function work(lock: ILock) {
+function work(lock: ILock, lockfile: string) {
   if (lock.feed.length === 0) {
     setTimeout(() => {
-      work(lock);
+      work(lock, lockfile);
     }, 60000);
     return;
   }
@@ -16,15 +18,17 @@ function work(lock: ILock) {
     lock.threads[lock.feed[lock.workon]].subscribers.length === 0) {
     logger.error(`nobody subscribes thread ${lock.feed[lock.workon]}, removing from feed`);
     lock.feed.splice(lock.workon, 1);
-    work(lock);
+    fs.writeFileSync(path.resolve(lockfile), JSON.stringify(lock));
+    work(lock, lockfile);
     return;
   }
 
   // TODO: Work on lock.feed[lock.workon]
 
   lock.workon++;
+  fs.writeFileSync(path.resolve(lockfile), JSON.stringify(lock));
   setTimeout(() => {
-    work(lock);
+    work(lock, lockfile);
   }, 60000);
 }
 

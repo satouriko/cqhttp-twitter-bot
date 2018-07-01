@@ -61,25 +61,25 @@ if (config.cq_access_token === undefined) {
 if (config.lockfile === undefined) {
     config.lockfile = 'subscriber.lock';
 }
-fs.access(path.resolve(config.lockfile), fs.constants.W_OK, err => {
-    if (err) {
-        logger.fatal(`cannot write lockfile ${path.resolve(config.lockfile)}, permission denied`);
-        process.exit(1);
-    }
-});
 let lock;
 if (fs.existsSync(path.resolve(config.lockfile))) {
     try {
-        lock = require(path.resolve(config.lockfile));
+        lock = JSON.parse(fs.readFileSync(path.resolve(config.lockfile), 'utf8'));
     }
-    catch (e) {
-        logger.error('Failed to parse lockfile: ', config.lockfile);
+    catch (err) {
+        logger.error(`Failed to parse lockfile ${config.lockfile}: `, err);
         lock = {
             workon: 0,
             feed: [],
             threads: {},
         };
     }
+    fs.access(path.resolve(config.lockfile), fs.constants.W_OK, err => {
+        if (err) {
+            logger.fatal(`cannot write lockfile ${path.resolve(config.lockfile)}, permission denied`);
+            process.exit(1);
+        }
+    });
 }
 else {
     lock = {
@@ -87,16 +87,23 @@ else {
         feed: [],
         threads: {},
     };
+    try {
+        fs.writeFileSync(path.resolve(config.lockfile), JSON.stringify(lock));
+    }
+    catch (err) {
+        logger.fatal(`cannot write lockfile ${path.resolve(config.lockfile)}, permission denied`);
+        process.exit(1);
+    }
 }
 const qq = new qq_1.default({
     access_token: config.cq_access_token,
     host: config.cq_ws_host,
     port: config.cq_ws_port,
     list: (c, a) => command_1.list(c, a, lock),
-    sub: (c, a) => command_1.sub(c, a, lock),
-    unsub: (c, a) => command_1.unsub(c, a, lock),
+    sub: (c, a) => command_1.sub(c, a, lock, config.lockfile),
+    unsub: (c, a) => command_1.unsub(c, a, lock, config.lockfile),
 });
 setTimeout(() => {
-    twitter_1.default(lock);
+    twitter_1.default(lock, config.lockfile);
 }, 60000);
-qq.bot.connect();
+qq.connect();

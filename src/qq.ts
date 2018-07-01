@@ -17,33 +17,12 @@ interface IQQProps {
 
 export default class {
 
+  private botInfo;
   public bot: CQWebsocket;
   private retryInterval = 1000;
-  private connect = () => {
-    logger.warn('connecting to websocket...');
-    this.bot.connect();
-  }
 
-  private reconnect = () => {
-    this.retryInterval *= 2;
-    if (this.retryInterval > 300000) this.retryInterval = 300000;
-    logger.info(`retrying in ${this.retryInterval / 1000}s...`);
-    setTimeout(() => {
-      logger.warn('reconnecting to websocket...');
-      this.connect();
-    }, this.retryInterval);
-  }
-
-  constructor(opt: IQQProps) {
-    logger.info(`init cqwebsocket for ${opt.host}:${opt.port}, with access_token ${opt.access_token}`);
-
-    this.bot = new CQWebsocket({
-      access_token: opt.access_token,
-      enableAPI: true,
-      enableEvent: true,
-      host: opt.host,
-      port: opt.port,
-    });
+  private initWebsocket = () => {
+    this.bot = new CQWebsocket(this.botInfo);
 
     this.bot.on('socket.connect', () => {
       logger.info('websocket connected');
@@ -80,13 +59,13 @@ export default class {
       switch (cmdObj.cmd) {
         case 'twitter_sub':
         case 'twitter_subscribe':
-          return opt.sub(chat, cmdObj.args);
+          return this.botInfo.sub(chat, cmdObj.args);
         case 'twitter_unsub':
         case 'twitter_unsubscribe':
-          return opt.unsub(chat, cmdObj.args);
+          return this.botInfo.unsub(chat, cmdObj.args);
         case 'ping':
         case 'twitter':
-          return opt.list(chat, cmdObj.args);
+          return this.botInfo.list(chat, cmdObj.args);
         case 'help':
           return `推特搬运机器人：
 /twitter - 查询当前聊天中的订阅
@@ -94,6 +73,32 @@ export default class {
 /twitter_unsubscribe [链接] - 退订 Twitter 搬运`;
       }
     });
+}
 
+  public connect = () => {
+    this.initWebsocket();
+    logger.warn('connecting to websocket...');
+    this.bot.connect();
+  }
+
+  private reconnect = () => {
+    this.retryInterval *= 2;
+    if (this.retryInterval > 300000) this.retryInterval = 300000;
+    logger.info(`retrying in ${this.retryInterval / 1000}s...`);
+    setTimeout(() => {
+      logger.warn('reconnecting to websocket...');
+      this.connect();
+    }, this.retryInterval);
+  }
+
+  constructor(opt: IQQProps) {
+    logger.info(`init cqwebsocket for ${opt.host}:${opt.port}, with access_token ${opt.access_token}`);
+    this.botInfo = {
+      access_token: opt.access_token,
+      enableAPI: true,
+      enableEvent: true,
+      host: opt.host,
+      port: opt.port,
+    };
   }
 }

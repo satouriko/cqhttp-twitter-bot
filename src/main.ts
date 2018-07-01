@@ -69,31 +69,36 @@ if (config.lockfile === undefined) {
   config.lockfile = 'subscriber.lock';
 }
 
-fs.access(path.resolve(config.lockfile), fs.constants.W_OK, err => {
-  if (err) {
-    logger.fatal(`cannot write lockfile ${path.resolve(config.lockfile)}, permission denied`);
-    process.exit(1);
-  }
-});
-
 let lock: ILock;
 if (fs.existsSync(path.resolve(config.lockfile))) {
   try {
-    lock = require(path.resolve(config.lockfile));
-  } catch (e) {
-    logger.error('Failed to parse lockfile: ', config.lockfile);
+    lock = JSON.parse(fs.readFileSync(path.resolve(config.lockfile), 'utf8'));
+  } catch (err) {
+    logger.error(`Failed to parse lockfile ${config.lockfile}: `, err);
     lock = {
       workon: 0,
       feed: [],
       threads: {},
     };
   }
+  fs.access(path.resolve(config.lockfile), fs.constants.W_OK, err => {
+    if (err) {
+      logger.fatal(`cannot write lockfile ${path.resolve(config.lockfile)}, permission denied`);
+      process.exit(1);
+    }
+  });
 } else {
   lock = {
     workon: 0,
     feed: [],
     threads: {},
   };
+  try {
+    fs.writeFileSync(path.resolve(config.lockfile), JSON.stringify(lock));
+  } catch (err) {
+    logger.fatal(`cannot write lockfile ${path.resolve(config.lockfile)}, permission denied`);
+    process.exit(1);
+  }
 }
 
 const qq = new QQBot({
@@ -101,12 +106,12 @@ const qq = new QQBot({
   host: config.cq_ws_host,
   port: config.cq_ws_port,
   list: (c, a) => list(c, a, lock),
-  sub: (c, a) => sub(c, a, lock),
-  unsub: (c, a) => unsub(c, a, lock),
+  sub: (c, a) => sub(c, a, lock, config.lockfile),
+  unsub: (c, a) => unsub(c, a, lock, config.lockfile),
 });
 
 setTimeout(() => {
-  work(lock);
+  work(lock, config.lockfile);
 }, 60000);
 
-qq.bot.connect();
+qq.connect();
