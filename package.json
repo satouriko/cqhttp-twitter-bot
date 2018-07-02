@@ -1,6 +1,6 @@
 {
   "name": "cqhttp-twitter-bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CQHTTP Twitter Bot",
   "main": "./dist/main.js",
   "bin": {
@@ -10,7 +10,13 @@
     "type": "git",
     "url": "https://github.com/rikakomoe/cqhttp-twitter-bot.git"
   },
-  "keywords": ["cq", "qq", "qqbot", "cqhttp", "twitter"],
+  "keywords": [
+    "cq",
+    "qq",
+    "qqbot",
+    "cqhttp",
+    "twitter"
+  ],
   "author": "Riko",
   "license": "MIT",
   "bugs": {
