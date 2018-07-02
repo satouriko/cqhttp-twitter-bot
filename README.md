@@ -3,7 +3,6 @@
 [![npm](https://img.shields.io/npm/v/cqhttp-twitter-bot.svg)](https://www.npmjs.com/package/cqhttp-twitter-bot)
 [![npm](https://img.shields.io/npm/dt/cqhttp-twitter-bot.svg)](https://www.npmjs.com/package/cqhttp-twitter-bot)
 [![GitHub issues](https://img.shields.io/github/issues/rikakomoe/cqhttp-twitter-bot.svg)](https://github.com/rikakomoe/cqhttp-twitter-bot/issues)
-[![GitHub top language](https://img.shields.io/github/languages/top/rikakomoe/cqhttp-twitter-bot.svg)](https://github.com/rikakomoe/cqhttp-twitter-bot)
 [![npm](https://img.shields.io/npm/l/cqhttp-twitter-bot.svg)](https://www.npmjs.com/package/cqhttp-twitter-bot)
 
 是一个可以订阅 Twitter 并转发到 QQ 的 Bot。
@@ -11,8 +10,7 @@
 ## 安装
 
 ```bash
-npm install -g cqhttp-twitter-bot
-yarn global add cqhttp-twitter-bot
+npm i -g cqhttp-twitter-bot
 ```
 
 当然还需要配合 [coolq-http-api](https://github.com/richardchien/coolq-http-api) 和 [酷Q](https://cqp.cc/) 才能工作。  

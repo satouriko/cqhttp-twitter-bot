@@ -5,7 +5,8 @@ function relativeDate(dtstr) {
         return '暂无数据';
     const dt = new Date(dtstr);
     const dateTimeStamp = dt.getTime();
-    const minute = 1000 * 60;
+    const second = 1000;
+    const minute = second * 60;
     const hour = minute * 60;
     const day = hour * 24;
     const month = day * 30;
@@ -19,6 +20,7 @@ function relativeDate(dtstr) {
     const dayC = diffValue / day;
     const hourC = diffValue / hour;
     const minC = diffValue / minute;
+    const secC = diffValue / second;
     let result;
     if (monthC > 12) {
         const y = dt.getFullYear() + ' 年';
@@ -42,7 +44,7 @@ function relativeDate(dtstr) {
         result = '' + Math.floor(minC) + ' 分钟前';
     }
     else
-        result = '刚刚';
+        result = '' + Math.floor(secC) + ' 秒前';
     return result;
 }
 exports.relativeDate = relativeDate;

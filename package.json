@@ -18,12 +18,12 @@
   },
   "homepage": "https://github.com/rikakomoe/cqhttp-twitter-bot",
   "scripts": {
-    "build": "tsc --outDir dist",
+    "build": "rm -r dist && tsc --outDir dist",
     "lint": "tslint --fix -c tslint.json --project ./"
   },
   "dependencies": {
     "command-line-usage": "^5.0.5",
-    "cq-websocket": "^1.2.5",
+    "cq-websocket": "^1.2.6",
     "log4js": "^2.10.0",
     "pngjs": "^3.3.3",
     "read-all-stream": "^3.1.0",
