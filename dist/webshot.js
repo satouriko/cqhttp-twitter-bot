@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const http = require("http");
+const https = require("https");
 const log4js = require("log4js");
 const pngjs_1 = require("pngjs");
 const read = require("read-all-stream");
@@ -65,13 +65,20 @@ function renderWebshot(url, height, webshotDelay) {
 function fetchImage(url) {
     return new Promise(resolve => {
         logger.info(`fetching ${url}`);
-        http.get(url, res => {
+        https.get(url, res => {
             if (res.statusCode === 200) {
                 read(res, 'base64').then(data => {
                     logger.info(`successfully fetched ${url}`);
-                    return data;
+                    resolve(data);
                 });
             }
+            else {
+                logger.error(`failed to fetch ${url}: ${res.statusCode}`);
+                resolve();
+            }
+        }).on('error', (err) => {
+            logger.error(`failed to fetch ${url}: ${err.message}`);
+            resolve();
         });
     });
 }

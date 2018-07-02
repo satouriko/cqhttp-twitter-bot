@@ -1,4 +1,4 @@
-import * as http from 'http';
+import * as https from 'https';
 import * as log4js from 'log4js';
 import { PNG } from 'pngjs';
 import * as read from 'read-all-stream';
@@ -62,13 +62,19 @@ function renderWebshot(url: string, height: number, webshotDelay: number): Promi
 function fetchImage(url: string): Promise<string> {
   return new Promise<string>(resolve => {
     logger.info(`fetching ${url}`);
-    http.get(url, res => {
+    https.get(url, res => {
       if (res.statusCode === 200) {
         read(res, 'base64').then(data => {
           logger.info(`successfully fetched ${url}`);
-          return data;
+          resolve(data);
         });
+      } else {
+        logger.error(`failed to fetch ${url}: ${res.statusCode}`);
+        resolve();
       }
+    }).on('error', (err) => {
+      logger.error(`failed to fetch ${url}: ${err.message}`);
+      resolve();
     });
   });
 }

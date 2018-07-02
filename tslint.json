@@ -24,6 +24,7 @@
     "comment-format": [true, "check-lowercase", {"ignore-words": ["TODO", "HACK", "BUG"]}],
     "no-require-imports": true,
     "no-var-requires": false,
+    "no-unused-variable": true,
     "no-bitwise": false,
     "prefer-const": true,
     "prefer-method-signature": true,
