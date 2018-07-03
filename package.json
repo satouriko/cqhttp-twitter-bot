@@ -1,6 +1,6 @@
 {
   "name": "cqhttp-twitter-bot",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "CQHTTP Twitter Bot",
   "main": "./dist/main.js",
   "bin": {
