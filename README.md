@@ -17,7 +17,7 @@ npm i -g cqhttp-twitter-bot
 它们是什么？  
 观察它们的文档：[https://cqhttp.cc/](https://cqhttp.cc/) [https://cqp.cc/t/15124](https://cqp.cc/t/15124)
 
-因为需要发图所以必须用 **CQ Pro** 才行。CQ Pro 是收费的，一个月 10 块左右。  
+因为需要发图所以必须用 **酷Q Pro** 才行。[酷Q Pro](https://cqp.cc/t/14901) 是收费的，一个月 10 块左右。  
 为什么要发图？  
 因为 twitter 有很多种，转推、回复、带图片的、带视频的。如果直接发文字的话体验很不好，估计也没人会需要吧。
 

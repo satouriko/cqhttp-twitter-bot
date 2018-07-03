@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as log4js from 'log4js';
 import * as path from 'path';
 
-import {relativeDate} from './datetime';
+import { relativeDate } from './datetime';
 
 const logger = log4js.getLogger('command');
 logger.level = (global as any).loglevel;
@@ -14,7 +14,7 @@ function parseLink(link: string): { link: string, match: string[] } | undefined 
     return {
       link,
       match: [match[1], match[2]],
-    }
+    };
   }
   match = link.match(/twitter.com\/([^\/?#]+)/);
   if (match) {
@@ -22,7 +22,7 @@ function parseLink(link: string): { link: string, match: string[] } | undefined 
     return {
       link,
       match: [match[1]],
-    }
+    };
   }
   match = link.match(/^([^\/?#]+)\/([^\/?#]+)$/);
   if (match) {
@@ -30,7 +30,7 @@ function parseLink(link: string): { link: string, match: string[] } | undefined 
     return {
       link,
       match: [match[1], match[2]],
-    }
+    };
   }
   match = link.match(/^([^\/?#]+)$/);
   if (match) {
@@ -38,7 +38,7 @@ function parseLink(link: string): { link: string, match: string[] } | undefined 
     return {
       link,
       match: [match[1]],
-    }
+    };
   }
   return undefined;
 }

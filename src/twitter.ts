@@ -69,41 +69,54 @@ export default class {
 
     const promise = new Promise(resolve => {
       let match = lock.feed[lock.workon].match(/https:\/\/twitter.com\/([^\/]+)\/lists\/([^\/]+)/);
+      let config: any;
+      let endpoint: string;
       if (match) {
-        const config: any = {
+        config = {
           owner_screen_name: match[1],
           slug: match[2],
         };
-        const offset = lock.threads[lock.feed[lock.workon]].offset;
-        if (offset > 0) config.since_id = offset;
-        this.client.get('lists/statuses', config, (error, tweets, response) => {
-          if (error) {
-            logger.error(`error on fetching tweets for ${lock.feed[lock.workon]}: ${JSON.stringify(error)}`);
-          }
-          resolve(tweets);
-        });
+        endpoint = 'lists/statuses';
       } else {
         match = lock.feed[lock.workon].match(/https:\/\/twitter.com\/([^\/]+)/);
         if (match) {
-          const config: any = {
+          config = {
             screen_name: match[1],
             exclude_replies: false,
           };
-          const offset = lock.threads[lock.feed[lock.workon]].offset;
-          if (offset > 0) config.since_id = offset;
-          this.client.get('statuses/user_timeline', config, (error, tweets, response) => {
-            if (error) {
-              logger.error(`error on fetching tweets for ${lock.feed[lock.workon]}: ${JSON.stringify(error)}`);
-            }
-            resolve(tweets);
-          });
+          endpoint = 'statuses/user_timeline';
         }
+      }
+
+      if (endpoint) {
+        const offset = lock.threads[lock.feed[lock.workon]].offset;
+        if (offset > 0) config.since_id = offset;
+        this.client.get(endpoint, config, (error, tweets, response) => {
+          if (error) {
+            if (error instanceof Array && error.length > 0 && error[0].code === 34) {
+              logger.warn(`error on fetching tweets for ${lock.feed[lock.workon]}: ${JSON.stringify(error)}`);
+              lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
+                logger.info(`sending notfound message of ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
+                this.bot.bot('send_msg', {
+                  message_type: subscriber.chatType,
+                  user_id: subscriber.chatID,
+                  group_id: subscriber.chatID,
+                  discuss_id: subscriber.chatID,
+                  message: `链接 ${lock.feed[lock.workon]} 指向的用户或列表不存在，请退订。`,
+                });
+              });
+            } else {
+              logger.error(`unhandled error on fetching tweets for ${lock.feed[lock.workon]}: ${JSON.stringify(error)}`);
+            }
+            resolve();
+          } else resolve(tweets);
+        });
       }
     });
 
     promise.then((tweets: any) => {
       logger.debug(`api returned ${JSON.stringify(tweets)} for feed ${lock.feed[lock.workon]}`);
-      if (tweets && tweets.length === 0) {
+      if (!tweets || tweets.length === 0) {
         lock.threads[lock.feed[lock.workon]].updatedAt = new Date().toString();
         return;
       }
