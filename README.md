@@ -17,10 +17,14 @@ npm i -g cqhttp-twitter-bot
 它们是什么？  
 观察它们的文档：[https://cqhttp.cc/](https://cqhttp.cc/) [https://cqp.cc/t/15124](https://cqp.cc/t/15124)
 
+因为需要发图所以必须用 **CQ Pro** 才行。CQ Pro 是收费的，一个月 10 块左右。  
+为什么要发图？  
+因为 twitter 有很多种，转推、回复、带图片的、带视频的。如果直接发文字的话体验很不好，估计也没人会需要吧。
+
 ## 食用
 
 ```bash
-$ cqhttp-twitter-bot config.json
+cqhttp-twitter-bot config.json
 ```
 
 ## 配置
@@ -48,15 +52,20 @@ $ cqhttp-twitter-bot config.json
 Bot 启动了以后就可以在 QQ 里用命令了。命令有：
 
 - /twitter - 列出当前会话的订阅
-- /twitter_subscribe [链接] - 订阅
-- /twitter_unsubscribe [链接] - 退订
+- /twitter_sub [链接] - 订阅
+- /twitter_unsub [链接] - 退订
 
-链接可以是一个个人的时间轴或者是列表， 例如：
+链接可以是一个个人的时间轴或者是列表，支持下面几种格式：
 
-个人：https://twitter.com/Saito_Shuka  
-列表：https://twitter.com/rikakomoe/lists/lovelive
+个人：
+  + https://twitter.com/Saito_Shuka
+  + https://mobile.twitter.com/Saito_Shuka
+  + Saito_Shuka
 
-必须是这个模式才行 qvq
+列表：
+  + https://twitter.com/rikakomoe/lists/lovelive
+  + https://mobile.twitter.com/rikakomoe/lists/lovelive
+  + rikakomoe/lovelive
 
 ## 其他说明
 
@@ -81,3 +90,7 @@ Bot 启动了以后就可以在 QQ 里用命令了。命令有：
 5. 列表中是没有回复的。实际上你看 Twitter 的列表本来也没有回复。个人的时间轴会显示
 回复。
 
+6. 转推是没有图片的。这个也是 API 的问题。这个人原创的 twitter 的话如果有图片
+会另外拉取一波图片附加在消息里。如果是视频的话则是封面图。
+
+7. 怎么查看翻译？QQ 点开图片，长按 -> 提取图中文字 -> 译

@@ -98,7 +98,6 @@ export default function (tweets, callback, webshotDelay: number): Promise<void> 
           });
       });
     }
-    // TODO: Translate
     promise.then(() => callback(cqstr));
   });
   return promise;

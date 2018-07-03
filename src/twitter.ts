@@ -77,6 +77,9 @@ export default class {
         const offset = lock.threads[lock.feed[lock.workon]].offset;
         if (offset > 0) config.since_id = offset;
         this.client.get('lists/statuses', config, (error, tweets, response) => {
+          if (error) {
+            logger.error(`error on fetching tweets for ${lock.feed[lock.workon]}: ${JSON.stringify(error)}`);
+          }
           resolve(tweets);
         });
       } else {
@@ -89,6 +92,9 @@ export default class {
           const offset = lock.threads[lock.feed[lock.workon]].offset;
           if (offset > 0) config.since_id = offset;
           this.client.get('statuses/user_timeline', config, (error, tweets, response) => {
+            if (error) {
+              logger.error(`error on fetching tweets for ${lock.feed[lock.workon]}: ${JSON.stringify(error)}`);
+            }
             resolve(tweets);
           });
         }
@@ -97,7 +103,7 @@ export default class {
 
     promise.then((tweets: any) => {
       logger.debug(`api returned ${JSON.stringify(tweets)} for feed ${lock.feed[lock.workon]}`);
-      if (tweets.length === 0) {
+      if (tweets && tweets.length === 0) {
         lock.threads[lock.feed[lock.workon]].updatedAt = new Date().toString();
         return;
       }

@@ -6,27 +6,54 @@ const path = require("path");
 const datetime_1 = require("./datetime");
 const logger = log4js.getLogger('command');
 logger.level = global.loglevel;
+function parseLink(link) {
+    let match = link.match(/twitter.com\/([^\/?#]+)\/lists\/([^\/?#]+)/);
+    if (match) {
+        link = `https://twitter.com/${match[1]}/lists/${match[2]}`;
+        return {
+            link,
+            match: [match[1], match[2]],
+        };
+    }
+    match = link.match(/twitter.com\/([^\/?#]+)/);
+    if (match) {
+        link = `https://twitter.com/${match[1]}`;
+        return {
+            link,
+            match: [match[1]],
+        };
+    }
+    match = link.match(/^([^\/?#]+)\/([^\/?#]+)$/);
+    if (match) {
+        link = `https://twitter.com/${match[1]}/lists/${match[2]}`;
+        return {
+            link,
+            match: [match[1], match[2]],
+        };
+    }
+    match = link.match(/^([^\/?#]+)$/);
+    if (match) {
+        link = `https://twitter.com/${match[1]}`;
+        return {
+            link,
+            match: [match[1]],
+        };
+    }
+    return undefined;
+}
 function sub(chat, args, lock, lockfile) {
     if (args.length === 0) {
         return '找不到要订阅的链接。';
     }
-    const link = args[0];
-    let flag = false;
-    let match = link.match(/https:\/\/twitter.com\/([^\/]+)\/lists\/([^\/]+)/);
-    if (match)
-        flag = true;
-    else {
-        match = link.match(/https:\/\/twitter.com\/([^\/]+)/);
-        if (match)
-            flag = true;
-    }
-    if (!flag) {
+    const match = parseLink(args[0]);
+    if (!match) {
         return `订阅链接格式错误：
 示例：
 https://twitter.com/Saito_Shuka
 https://twitter.com/rikakomoe/lists/lovelive`;
     }
-    flag = false;
+    const link = match.link;
+    let flag = false;
     lock.feed.forEach(fl => {
         if (fl === link)
             flag = true;
@@ -56,7 +83,11 @@ function unsub(chat, args, lock, lockfile) {
     if (args.length === 0) {
         return '找不到要退订的链接。';
     }
-    const link = args[0];
+    const match = parseLink(args[0]);
+    if (!match) {
+        return '链接格式有误。';
+    }
+    const link = match.link;
     if (!lock.threads[link]) {
         return '您没有订阅此链接。\n' + list(chat, args, lock);
     }
