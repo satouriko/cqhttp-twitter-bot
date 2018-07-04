@@ -25,8 +25,8 @@ function renderWebshot(url, height, webshotDelay) {
         }))
             .on('parsed', function () {
             let boundary = null;
+            let x = 0;
             for (let y = 0; y < this.height; y++) {
-                const x = 0;
                 const idx = (this.width * y + x) << 2;
                 if (this.data[idx] !== 255) {
                     boundary = y;
@@ -37,6 +37,20 @@ function renderWebshot(url, height, webshotDelay) {
                 logger.info(`found boundary at ${boundary}, cropping image`);
                 this.data = this.data.slice(0, (this.width * boundary) << 2);
                 this.height = boundary;
+                boundary = null;
+                x = Math.floor(this.width / 2);
+                for (let y = this.height - 1; y >= 0; y--) {
+                    const idx = (this.width * y + x) << 2;
+                    if (this.data[idx] !== 255) {
+                        boundary = y;
+                        break;
+                    }
+                }
+                if (boundary != null) {
+                    logger.info(`found boundary at ${boundary}, trimming image`);
+                    this.data = this.data.slice(0, (this.width * boundary) << 2);
+                    this.height = boundary;
+                }
                 read(this.pack(), 'base64').then(data => {
                     logger.info(`finished webshot for ${url}`);
                     resolve({ data, boundary });
