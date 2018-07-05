@@ -139,8 +139,13 @@ class Webshot extends CallableInstance {
       }
       if (twi.entities && twi.entities.urls && twi.entities.urls.length) {
         promise = promise.then(() => {
-          cqstr += '\n';
-          cqstr += twi.entities.urls.map(urlObj => urlObj.expanded_url).join('\n');
+          const urls = twi.entities.urls
+            .filter(urlObj => urlObj.indices[0] < twi.display_text_range[1])
+            .map(urlObj => urlObj.expanded_url);
+          if (urls.length) {
+            cqstr += '\n';
+            cqstr += urls.join('\n');
+          }
         });
       }
       promise.then(() => callback(cqstr));
