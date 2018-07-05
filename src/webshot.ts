@@ -37,9 +37,12 @@ class Webshot extends CallableInstance {
             }))
             .then(() => page.goto(url))
             .then(() => page.addStyleTag({
-              content: 'html{zoom:2}header{display:none!important}',
+              content: 'html{zoom:2}header{display:none!important}path[d=\'M20.207 7.043a1 1 0 0 0-1.414 0L12 13.836 5.207 7.043a1 1 0 0 0-1.414 1.414l7.5 7.5a.996.996 0 0 0 1.414 0l7.5-7.5a1 1 0 0 0 0-1.414z\'],div[role=\'button\']{display: none;}',
             }))
             .then(() => page.waitFor(webshotDelay))
+            .then(() => page.addScriptTag({
+              content: 'document.documentElement.scrollTop=0;',
+            }))
             .then(() => page.screenshot())
             .then(screenshot => {
               new PNG({
@@ -61,11 +64,13 @@ class Webshot extends CallableInstance {
 
                   boundary = null;
                   x = Math.floor(this.width / 2);
+                  let flag = 0;
                   for (let y = this.height - 1; y >= 0; y--) {
                     const idx = (this.width * y + x) << 2;
                     if (this.data[idx] !== 255) {
                       boundary = y;
-                      break;
+                      if (!flag) flag = 1;
+                      else break;
                     }
                   }
                   if (boundary != null) {
