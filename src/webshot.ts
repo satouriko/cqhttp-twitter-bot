@@ -64,13 +64,20 @@ class Webshot extends CallableInstance {
 
                   boundary = null;
                   x = Math.floor(this.width / 2);
-                  let flag = 0;
+                  let flag = false;
+                  let cnt = 0;
                   for (let y = this.height - 1; y >= 0; y--) {
                     const idx = (this.width * y + x) << 2;
                     if (this.data[idx] !== 255) {
+                      if (!flag) cnt++;
+                      flag = true;
+                    } else {
+                      if (flag) cnt++;
+                      flag = false;
+                    }
+                    if (cnt === 3) {
                       boundary = y;
-                      if (!flag) flag = 1;
-                      else break;
+                      break;
                     }
                   }
                   if (boundary != null) {
