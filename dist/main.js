@@ -134,5 +134,5 @@ const worker = new twitter_1.default({
     bot: qq,
     webshotDelay: config.webshot_delay,
 });
-setTimeout(worker.work, config.work_interval * 1000);
+worker.launch();
 qq.connect();

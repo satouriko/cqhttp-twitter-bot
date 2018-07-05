@@ -9,6 +9,9 @@ const logger = log4js.getLogger('twitter');
 logger.level = global.loglevel;
 class default_1 {
     constructor(opt) {
+        this.launch = () => {
+            this.webshot = new webshot_1.default(() => setTimeout(this.work, this.workInterval * 1000));
+        };
         this.work = () => {
             const lock = this.lock;
             if (this.workInterval < 1)
@@ -94,7 +97,7 @@ class default_1 {
                 }
                 if (lock.threads[lock.feed[lock.workon]].offset === 0)
                     tweets.splice(1);
-                return webshot_1.default(tweets, msg => {
+                return this.webshot(tweets, msg => {
                     lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
                         logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
                         this.bot.bot('send_msg', {

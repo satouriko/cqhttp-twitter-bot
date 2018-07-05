@@ -1,77 +1,96 @@
+import * as CallableInstance from 'callable-instance';
 import * as https from 'https';
 import * as log4js from 'log4js';
 import { PNG } from 'pngjs';
+import * as puppeteer from 'puppeteer';
+import { Browser } from 'puppeteer';
 import * as read from 'read-all-stream';
-import * as CallableInstance from 'callable-instance';
 
 const logger = log4js.getLogger('webshot');
 logger.level = (global as any).loglevel;
 
 class Webshot extends CallableInstance {
-  constructor() {
+
+  private browser: Browser;
+
+  constructor(onready?: () => any) {
     super('webshot');
+    puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']})
+      .then(browser => this.browser = browser)
+      .then(() => {
+        logger.info('launched puppeteer browser');
+        if (onready) onready();
+      });
   }
 
-  private renderWebshot = (url: string, height: number, webshotDelay: number): Promise<string> =>  {
+  private renderWebshot = (url: string, height: number, webshotDelay: number): Promise<string> => {
     const promise = new Promise<{ data: string, boundary: null | number }>(resolve => {
-      const options = {
-        windowSize: {
-          width: 1080,
-          height,
-        },
-        userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36',
-        renderDelay: webshotDelay,
-        quality: 100,
-        customCSS: 'html{zoom:2}header{display:none!important}',
-      };
-      logger.info(`shooting ${options.windowSize.width}*${height} webshot for ${url}`);
-      webshot(url, options).pipe(new PNG({
-        filterType: 4,
-      }))
-        .on('parsed', function () {
-          let boundary = null;
-          let x = 0;
-          for (let y = 0; y < this.height; y++) {
-            const idx = (this.width * y + x) << 2;
-            if (this.data[idx] !== 255) {
-              boundary = y;
-              break;
-            }
-          }
-          if (boundary !== null) {
-            logger.info(`found boundary at ${boundary}, cropping image`);
-            this.data = this.data.slice(0, (this.width * boundary) << 2);
-            this.height = boundary;
+      const width = 1080;
+      logger.info(`shooting ${width}*${height} webshot for ${url}`);
+      this.browser.newPage()
+        .then(page => {
+          page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36')
+            .then(() => page.setViewport({
+              width,
+              height,
+              isMobile: true,
+            }))
+            .then(() => page.goto(url))
+            .then(() => page.addStyleTag({
+              content: 'html{zoom:2}header{display:none!important}',
+            }))
+            .then(() => page.waitFor(webshotDelay))
+            .then(() => page.screenshot())
+            .then(screenshot => {
+              new PNG({
+                filterType: 4,
+              }).on('parsed', function () {
+                let boundary = null;
+                let x = 0;
+                for (let y = 0; y < this.height; y++) {
+                  const idx = (this.width * y + x) << 2;
+                  if (this.data[idx] !== 255) {
+                    boundary = y;
+                    break;
+                  }
+                }
+                if (boundary !== null) {
+                  logger.info(`found boundary at ${boundary}, cropping image`);
+                  this.data = this.data.slice(0, (this.width * boundary) << 2);
+                  this.height = boundary;
 
-            boundary = null;
-            x = Math.floor(this.width / 2);
-            for (let y = this.height - 1; y >= 0; y--) {
-              const idx = (this.width * y + x) << 2;
-              if (this.data[idx] !== 255) {
-                boundary = y;
-                break;
-              }
-            }
-            if (boundary != null) {
-              logger.info(`found boundary at ${boundary}, trimming image`);
-              this.data = this.data.slice(0, (this.width * boundary) << 2);
-              this.height = boundary;
-            }
+                  boundary = null;
+                  x = Math.floor(this.width / 2);
+                  for (let y = this.height - 1; y >= 0; y--) {
+                    const idx = (this.width * y + x) << 2;
+                    if (this.data[idx] !== 255) {
+                      boundary = y;
+                      break;
+                    }
+                  }
+                  if (boundary != null) {
+                    logger.info(`found boundary at ${boundary}, trimming image`);
+                    this.data = this.data.slice(0, (this.width * boundary) << 2);
+                    this.height = boundary;
+                  }
 
-            read(this.pack(), 'base64').then(data => {
-              logger.info(`finished webshot for ${url}`);
-              resolve({data, boundary});
-            });
-          } else if (height >= 8 * 1920) {
-            logger.warn('too large, consider as a bug, returning');
-            read(this.pack(), 'base64').then(data => {
-              logger.info(`finished webshot for ${url}`);
-              resolve({data, boundary: 0});
-            });
-          } else {
-            logger.info('unable to found boundary, try shooting a larger image');
-            resolve({data: '', boundary});
-          }
+                  read(this.pack(), 'base64').then(data => {
+                    logger.info(`finished webshot for ${url}`);
+                    resolve({data, boundary});
+                  });
+                } else if (height >= 8 * 1920) {
+                  logger.warn('too large, consider as a bug, returning');
+                  read(this.pack(), 'base64').then(data => {
+                    logger.info(`finished webshot for ${url}`);
+                    resolve({data, boundary: 0});
+                  });
+                } else {
+                  logger.info('unable to found boundary, try shooting a larger image');
+                  resolve({data: '', boundary});
+                }
+              }).parse(screenshot);
+            })
+            .then(() => page.close());
         });
     });
     return promise.then(data => {
@@ -80,8 +99,8 @@ class Webshot extends CallableInstance {
     });
   }
 
-  private fetchImage = (url: string): Promise<string> => {
-    return new Promise<string>(resolve => {
+  private fetchImage = (url: string): Promise<string> =>
+    new Promise<string>(resolve => {
       logger.info(`fetching ${url}`);
       https.get(url, res => {
         if (res.statusCode === 200) {
@@ -97,10 +116,9 @@ class Webshot extends CallableInstance {
         logger.error(`failed to fetch ${url}: ${err.message}`);
         resolve();
       });
-    });
-  }
+    })
 
-  public webshot = (tweets, callback, webshotDelay: number): Promise<void> => {
+  public webshot(tweets, callback, webshotDelay: number): Promise<void> {
     let promise = new Promise<void>(resolve => {
       resolve();
     });

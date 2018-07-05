@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as Twitter from 'twitter';
 
 import QQBot from './cqhttp';
-import webshot from './webshot';
+import Webshot from './webshot';
 
 interface IWorkerOption {
   lock: ILock;
@@ -29,6 +29,7 @@ export default class {
   private workInterval: number;
   private bot: QQBot;
   private webshotDelay: number;
+  private webshot: Webshot;
 
   constructor(opt: IWorkerOption) {
     this.client = new Twitter({
@@ -42,6 +43,10 @@ export default class {
     this.workInterval = opt.workInterval;
     this.bot = opt.bot;
     this.webshotDelay = opt.webshotDelay;
+  }
+
+  public launch = () => {
+    this.webshot = new Webshot(() => setTimeout(this.work, this.workInterval * 1000));
   }
 
   public work = () => {
@@ -125,7 +130,7 @@ export default class {
         return;
       }
       if (lock.threads[lock.feed[lock.workon]].offset === 0) tweets.splice(1);
-      return webshot(tweets, msg => {
+      return (this.webshot as any)(tweets, msg => {
         lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
           logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
           this.bot.bot('send_msg', {
