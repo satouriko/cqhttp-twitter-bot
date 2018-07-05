@@ -106,7 +106,7 @@ class Webshot extends CallableInstance {
                 resolve();
             });
         });
-        puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
+        puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox', '--lang=zh-CN,zh'] })
             .then(browser => this.browser = browser)
             .then(() => {
             logger.info('launched puppeteer browser');
