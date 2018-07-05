@@ -80,6 +80,7 @@ export default class {
         config = {
           owner_screen_name: match[1],
           slug: match[2],
+          tweet_mode: 'extended',
         };
         endpoint = 'lists/statuses';
       } else {
@@ -88,6 +89,7 @@ export default class {
           config = {
             screen_name: match[1],
             exclude_replies: false,
+            tweet_mode: 'extended',
           };
           endpoint = 'statuses/user_timeline';
         }
