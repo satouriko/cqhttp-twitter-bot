@@ -35,6 +35,7 @@ class Webshot extends CallableInstance {
               height,
               isMobile: true,
             }))
+            .then(() => page.setBypassCSP(true))
             .then(() => page.goto(url))
             .then(() => page.addStyleTag({
               content: 'html{zoom:2}header{display:none!important}path[d=\'M20.207 7.043a1 1 0 0 0-1.414 0L12 13.836 5.207 7.043a1 1 0 0 0-1.414 1.414l7.5 7.5a.996.996 0 0 0 1.414 0l7.5-7.5a1 1 0 0 0 0-1.414z\'],div[role=\'button\']{display: none;}',
