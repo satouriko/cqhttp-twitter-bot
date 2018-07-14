@@ -37,6 +37,7 @@ class Webshot extends CallableInstance {
             }))
             .then(() => page.setBypassCSP(true))
             .then(() => page.goto(url))
+            // hide header, "more options" button, like and retweet count
             .then(() => page.addStyleTag({
               content: 'html{zoom:2}header{display:none!important}path[d=\'M20.207 7.043a1 1 0 0 0-1.414 0L12 13.836 5.207 7.043a1 1 0 0 0-1.414 1.414l7.5 7.5a.996.996 0 0 0 1.414 0l7.5-7.5a1 1 0 0 0 0-1.414z\'],div[role=\'button\']{display: none;}',
             }))
@@ -49,6 +50,7 @@ class Webshot extends CallableInstance {
               new PNG({
                 filterType: 4,
               }).on('parsed', function () {
+                // remove comment area
                 let boundary = null;
                 let x = 0;
                 for (let y = 0; y < this.height; y++) {
@@ -69,15 +71,20 @@ class Webshot extends CallableInstance {
                   let cnt = 0;
                   for (let y = this.height - 1; y >= 0; y--) {
                     const idx = (this.width * y + x) << 2;
-                    if (this.data[idx] !== 255) {
-                      if (!flag) cnt++;
-                      flag = true;
-                    } else {
-                      if (flag) cnt++;
-                      flag = false;
+                    if ((this.data[idx] === 255) === flag) {
+                      cnt++;
+                      flag = !flag;
+                    } else continue;
+
+                    // line above the "comment", "retweet", "like", "share" button row
+                    if (cnt === 2) {
+                      boundary = y + 1;
                     }
-                    if (cnt === 3) {
-                      boundary = y;
+
+                    // if there are a "retweet" count and "like" count row, this will be the line above it
+                    if (cnt === 4) {
+                      const b = y + 1;
+                      if (this.height - b <= 200) boundary = b;
                       break;
                     }
                   }
