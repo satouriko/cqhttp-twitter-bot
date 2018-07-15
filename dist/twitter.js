@@ -111,21 +111,36 @@ class default_1 {
                     lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
                         logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
                         const hash = sha1(JSON.stringify(subscriber) + text);
-                        if (this.redisClient && this.redisClient.exists(hash)) {
-                            logger.info('key hash exists, skip this subscriber');
-                            return;
-                        }
-                        this.bot.bot('send_msg', {
-                            message_type: subscriber.chatType,
-                            user_id: subscriber.chatID,
-                            group_id: subscriber.chatID,
-                            discuss_id: subscriber.chatID,
-                            message: msg,
-                        });
+                        const send = () => {
+                            this.bot.bot('send_msg', {
+                                message_type: subscriber.chatType,
+                                user_id: subscriber.chatID,
+                                group_id: subscriber.chatID,
+                                discuss_id: subscriber.chatID,
+                                message: msg,
+                            });
+                        };
                         if (this.redisClient) {
-                            this.redisClient.set(hash, 'true');
-                            this.redisClient.expire(hash, this.redisConfig.redisExpireTime);
+                            this.redisClient.exists(hash, (err, res) => {
+                                logger.debug('redis: ', res);
+                                if (err) {
+                                    logger.error('redis error: ', err);
+                                }
+                                else if (res) {
+                                    logger.info('key hash exists, skip this subscriber');
+                                    return;
+                                }
+                                send();
+                                this.redisClient.set(hash, 'true', 'EX', this.redisConfig.redisExpireTime, (err, res) => {
+                                    logger.debug('redis: ', res);
+                                    if (err) {
+                                        logger.error('redis error: ', err);
+                                    }
+                                });
+                            });
                         }
+                        else
+                            send();
                     });
                 }, this.webshotDelay)
                     .then(() => {
