@@ -21,3 +21,9 @@ interface ILock {
       }
   }
 }
+
+interface IRedisConfig {
+  redisHost: string,
+  redisPort: number,
+  redisExpireTime: number
+}

@@ -74,6 +74,14 @@ if (config.webshot_delay === undefined) {
 if (config.loglevel === undefined) {
     config.loglevel = 'info';
 }
+let redisConfig;
+if (config.redis) {
+    redisConfig = {
+        redisHost: config.redis_host || "127.0.0.1",
+        redisPort: config.redis_port || 6379,
+        redisExpireTime: config.redis_expire_time || 43200,
+    };
+}
 global.loglevel = config.loglevel;
 const command_1 = require("./command");
 const cqhttp_1 = require("./cqhttp");
@@ -133,6 +141,7 @@ const worker = new twitter_1.default({
     workInterval: config.work_interval,
     bot: qq,
     webshotDelay: config.webshot_delay,
+    redis: redisConfig,
 });
 worker.launch();
 qq.connect();

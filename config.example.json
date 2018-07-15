@@ -9,5 +9,9 @@
   "work_interval": 60,
   "webshot_delay": 5000,
   "lockfile": "subscriber.lock",
-  "loglevel": "info"
+  "loglevel": "info",
+  "redis": true,
+  "redis_host": "127.0.0.1",
+  "redis_port": 6379,
+  "redis_expire_time": 43200
 }

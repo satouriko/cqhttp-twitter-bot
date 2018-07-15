@@ -167,7 +167,7 @@ class Webshot extends CallableInstance {
                     }
                 });
             }
-            promise.then(() => callback(cqstr));
+            promise.then(() => callback(cqstr, twi.full_text));
         });
         return promise;
     }

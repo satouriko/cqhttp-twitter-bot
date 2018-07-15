@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const log4js = require("log4js");
 const path = require("path");
+const redis = require("redis");
+const sha1 = require("sha1");
 const Twitter = require("twitter");
 const webshot_1 = require("./webshot");
 const logger = log4js.getLogger('twitter');
@@ -10,6 +12,12 @@ logger.level = global.loglevel;
 class default_1 {
     constructor(opt) {
         this.launch = () => {
+            if (this.redisConfig) {
+                this.redisClient = redis.createClient({
+                    host: this.redisConfig.redisHost,
+                    port: this.redisConfig.redisPort,
+                });
+            }
             this.webshot = new webshot_1.default(() => setTimeout(this.work, this.workInterval * 1000));
         };
         this.work = () => {
@@ -99,9 +107,14 @@ class default_1 {
                 }
                 if (lock.threads[lock.feed[lock.workon]].offset === 0)
                     tweets.splice(1);
-                return this.webshot(tweets, msg => {
+                return this.webshot(tweets, (msg, text) => {
                     lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
                         logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
+                        const hash = sha1(JSON.stringify(subscriber) + text);
+                        if (this.redisClient && this.redisClient.exists(hash)) {
+                            logger.info('key hash exists, skip this subscriber');
+                            return;
+                        }
                         this.bot.bot('send_msg', {
                             message_type: subscriber.chatType,
                             user_id: subscriber.chatID,
@@ -109,6 +122,10 @@ class default_1 {
                             discuss_id: subscriber.chatID,
                             message: msg,
                         });
+                        if (this.redisClient) {
+                            this.redisClient.set(hash, 'true');
+                            this.redisClient.expire(hash, this.redisConfig.redisExpireTime);
+                        }
                     });
                 }, this.webshotDelay)
                     .then(() => {
@@ -138,6 +155,7 @@ class default_1 {
         this.workInterval = opt.workInterval;
         this.bot = opt.bot;
         this.webshotDelay = opt.webshotDelay;
+        this.redisConfig = opt.redis;
     }
 }
 exports.default = default_1;

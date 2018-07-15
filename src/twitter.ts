@@ -1,6 +1,9 @@
 import * as fs from 'fs';
 import * as log4js from 'log4js';
 import * as path from 'path';
+import * as redis from 'redis';
+import { RedisClient } from 'redis';
+import * as sha1 from 'sha1';
 import * as Twitter from 'twitter';
 
 import QQBot from './cqhttp';
@@ -16,6 +19,7 @@ interface IWorkerOption {
   consumer_secret: string;
   access_token_key: string;
   access_token_secret: string;
+  redis: IRedisConfig;
 }
 
 const logger = log4js.getLogger('twitter');
@@ -30,6 +34,8 @@ export default class {
   private bot: QQBot;
   private webshotDelay: number;
   private webshot: Webshot;
+  private redisConfig: IRedisConfig;
+  private redisClient: RedisClient;
 
   constructor(opt: IWorkerOption) {
     this.client = new Twitter({
@@ -43,9 +49,16 @@ export default class {
     this.workInterval = opt.workInterval;
     this.bot = opt.bot;
     this.webshotDelay = opt.webshotDelay;
+    this.redisConfig = opt.redis;
   }
 
   public launch = () => {
+    if (this.redisConfig) {
+      this.redisClient = redis.createClient({
+        host: this.redisConfig.redisHost,
+        port: this.redisConfig.redisPort,
+      });
+    }
     this.webshot = new Webshot(() => setTimeout(this.work, this.workInterval * 1000));
   }
 
@@ -132,9 +145,14 @@ export default class {
         return;
       }
       if (lock.threads[lock.feed[lock.workon]].offset === 0) tweets.splice(1);
-      return (this.webshot as any)(tweets, msg => {
+      return (this.webshot as any)(tweets, (msg, text) => {
         lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
           logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
+          const hash = sha1(JSON.stringify(subscriber) + text);
+          if (this.redisClient && this.redisClient.exists(hash)) {
+            logger.info('key hash exists, skip this subscriber');
+            return;
+          }
           this.bot.bot('send_msg', {
             message_type: subscriber.chatType,
             user_id: subscriber.chatID,
@@ -142,6 +160,10 @@ export default class {
             discuss_id: subscriber.chatID,
             message: msg,
           });
+          if (this.redisClient) {
+            this.redisClient.set(hash, 'true');
+            this.redisClient.expire(hash, this.redisConfig.redisExpireTime);
+          }
         });
       }, this.webshotDelay)
         .then(() => {

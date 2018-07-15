@@ -80,6 +80,14 @@ if (config.webshot_delay === undefined) {
 if (config.loglevel === undefined) {
   config.loglevel = 'info';
 }
+let redisConfig: IRedisConfig;
+if (config.redis) {
+  redisConfig = {
+    redisHost: config.redis_host || "127.0.0.1",
+    redisPort: config.redis_port || 6379,
+    redisExpireTime: config.redis_expire_time || 43200,
+  };
+}
 
 (global as any).loglevel = config.loglevel;
 
@@ -142,6 +150,7 @@ const worker = new Worker({
   workInterval: config.work_interval,
   bot: qq,
   webshotDelay: config.webshot_delay,
+  redis: redisConfig,
 });
 worker.launch();
 
