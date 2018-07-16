@@ -74,6 +74,9 @@ if (config.webshot_delay === undefined) {
 if (config.loglevel === undefined) {
     config.loglevel = 'info';
 }
+if (typeof config.mode !== 'number') {
+    config.mode = 0;
+}
 let redisConfig;
 if (config.redis) {
     redisConfig = {

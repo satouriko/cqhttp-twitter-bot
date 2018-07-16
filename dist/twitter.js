@@ -110,7 +110,10 @@ class default_1 {
                 return this.webshot(this.mode, tweets, (msg, text) => {
                     lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
                         logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
-                        const hash = sha1(JSON.stringify(subscriber) + text);
+                        let hash = JSON.stringify(subscriber) + text;
+                        logger.debug(hash);
+                        hash = sha1(JSON.stringify(subscriber) + text);
+                        logger.debug(hash);
                         const send = () => {
                             this.bot.bot('send_msg', {
                                 message_type: subscriber.chatType,
@@ -131,10 +134,10 @@ class default_1 {
                                     return;
                                 }
                                 send();
-                                this.redisClient.set(hash, 'true', 'EX', this.redisConfig.redisExpireTime, (err, res) => {
-                                    logger.debug('redis: ', res);
-                                    if (err) {
-                                        logger.error('redis error: ', err);
+                                this.redisClient.set(hash, 'true', 'EX', this.redisConfig.redisExpireTime, (setErr, setRes) => {
+                                    logger.debug('redis: ', setRes);
+                                    if (setErr) {
+                                        logger.error('redis error: ', setErr);
                                     }
                                 });
                             });

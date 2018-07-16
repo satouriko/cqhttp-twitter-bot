@@ -140,6 +140,7 @@ class Webshot extends CallableInstance {
             resolve();
         });
         tweets.forEach(twi => {
+            logger.info(`working on ${twi.user.screen_name}/${twi.id_str}`);
             let cqstr = '';
             if (mode === 0) {
                 const url = `https://mobile.twitter.com/${twi.user.screen_name}/status/${twi.id_str}`;
