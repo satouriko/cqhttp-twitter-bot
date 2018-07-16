@@ -83,7 +83,7 @@ if (config.loglevel === undefined) {
 let redisConfig: IRedisConfig;
 if (config.redis) {
   redisConfig = {
-    redisHost: config.redis_host || "127.0.0.1",
+    redisHost: config.redis_host || '127.0.0.1',
     redisPort: config.redis_port || 6379,
     redisExpireTime: config.redis_expire_time || 43200,
   };
@@ -151,6 +151,7 @@ const worker = new Worker({
   bot: qq,
   webshotDelay: config.webshot_delay,
   redis: redisConfig,
+  mode: config.mode,
 });
 worker.launch();
 

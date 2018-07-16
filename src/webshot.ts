@@ -138,37 +138,50 @@ class Webshot extends CallableInstance {
       });
     })
 
-  public webshot(tweets, callback, webshotDelay: number): Promise<void> {
+  public webshot(mode, tweets, callback, webshotDelay: number): Promise<void> {
     let promise = new Promise<void>(resolve => {
       resolve();
     });
     tweets.forEach(twi => {
       let cqstr = '';
-      const url = `https://mobile.twitter.com/${twi.user.screen_name}/status/${twi.id_str}`;
-      promise = promise.then(() => this.renderWebshot(url, 1920, webshotDelay))
-        .then(base64Webshot => {
-          if (base64Webshot) cqstr += `[CQ:image,file=base64://${base64Webshot}]`;
-        });
-      if (twi.extended_entities) {
-        twi.extended_entities.media.forEach(media => {
-          promise = promise.then(() => this.fetchImage(media.media_url_https))
-            .then(base64Image => {
-              if (base64Image) cqstr += `[CQ:image,file=base64://${base64Image}]`;
-            });
-        });
+      if (mode === 0) {
+        const url = `https://mobile.twitter.com/${twi.user.screen_name}/status/${twi.id_str}`;
+        promise = promise.then(() => this.renderWebshot(url, 1920, webshotDelay))
+          .then(base64Webshot => {
+            if (base64Webshot) cqstr += `[CQ:image,file=base64://${base64Webshot}]`;
+          });
+        if (twi.extended_entities) {
+          twi.extended_entities.media.forEach(media => {
+            promise = promise.then(() => this.fetchImage(media.media_url_https))
+              .then(base64Image => {
+                if (base64Image) cqstr += `[CQ:image,file=base64://${base64Image}]`;
+              });
+          });
+        }
+        if (twi.entities && twi.entities.urls && twi.entities.urls.length) {
+          promise = promise.then(() => {
+            const urls = twi.entities.urls
+              .filter(urlObj => urlObj.indices[0] < twi.display_text_range[1])
+              .map(urlObj => urlObj.expanded_url);
+            if (urls.length) {
+              cqstr += '\n';
+              cqstr += urls.join('\n');
+            }
+          });
+        }
       }
-      if (twi.entities && twi.entities.urls && twi.entities.urls.length) {
-        promise = promise.then(() => {
-          const urls = twi.entities.urls
-            .filter(urlObj => urlObj.indices[0] < twi.display_text_range[1])
-            .map(urlObj => urlObj.expanded_url);
-          if (urls.length) {
-            cqstr += '\n';
-            cqstr += urls.join('\n');
-          }
-        });
-      }
-      promise.then(() => callback(cqstr, (twi.retweeted_status || twi).full_text));
+      promise.then(() => {
+        let text = (twi.retweeted_status || twi).full_text;
+        if (twi.entities && twi.entities.urls && twi.entities.urls.length) {
+          twi.entities.urls.forEach(url => {
+            text = text.replace(new RegExp(url.url, 'gm'), url.expanded_url);
+          });
+        }
+        text = text.replace(/&/gm, '&amp;')
+          .replace(/\[/gm, '&#91;')
+          .replace(/\]/gm, '&#93;');
+        callback(cqstr, text);
+      });
     });
     return promise;
   }

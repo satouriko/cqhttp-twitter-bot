@@ -17,10 +17,6 @@ npm i -g cqhttp-twitter-bot
 它们是什么？  
 观察它们的文档：[https://cqhttp.cc/](https://cqhttp.cc/) [https://cqp.cc/t/15124](https://cqp.cc/t/15124)
 
-因为需要发图所以必须用 **酷Q Pro** 才行。[酷Q Pro](https://cqp.cc/t/14901) 是收费的，一个月 10 块左右。  
-为什么要发图？  
-因为 twitter 有很多种，转推、回复、带图片的、带视频的。如果直接发文字的话体验很不好，估计也没人会需要吧。
-
 ## 食用
 
 ```bash
@@ -40,6 +36,7 @@ cqhttp-twitter-bot config.json
 | twitter_consumer_secret |  Twitter App consumer_secret | （必填） |
 | twitter_access_token_key | Twitter App access_token_key | （必填） |
 | twitter_access_token_secret | Twitter App access_token_secret | （必填） |
+| mode | 工作模式，0 为图文模式，1 为纯文本模式。图文模式必须使用 [酷Q Pro](https://cqp.cc/t/14901)。 | 0 |
 | work_interval | 对单个订阅两次拉取更新的最少间隔时间（秒） | 60 |
 | webshot_delay | 抓取网页截图时等待网页加载的延迟时长（毫秒） | 5000 |
 | lockfile | 本地保存订阅信息以便下次启动时恢复 | subscriber.lock |

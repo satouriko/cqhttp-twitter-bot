@@ -20,6 +20,7 @@ interface IWorkerOption {
   access_token_key: string;
   access_token_secret: string;
   redis: IRedisConfig;
+  mode: number;
 }
 
 const logger = log4js.getLogger('twitter');
@@ -36,6 +37,7 @@ export default class {
   private webshot: Webshot;
   private redisConfig: IRedisConfig;
   private redisClient: RedisClient;
+  private mode: number;
 
   constructor(opt: IWorkerOption) {
     this.client = new Twitter({
@@ -50,6 +52,7 @@ export default class {
     this.bot = opt.bot;
     this.webshotDelay = opt.webshotDelay;
     this.redisConfig = opt.redis;
+    this.mode = opt.mode;
   }
 
   public launch = () => {
@@ -145,7 +148,7 @@ export default class {
         return;
       }
       if (lock.threads[lock.feed[lock.workon]].offset === 0) tweets.splice(1);
-      return (this.webshot as any)(tweets, (msg, text) => {
+      return (this.webshot as any)(this.mode, tweets, (msg, text) => {
         lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
           logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
           const hash = sha1(JSON.stringify(subscriber) + text);
@@ -155,7 +158,7 @@ export default class {
               user_id: subscriber.chatID,
               group_id: subscriber.chatID,
               discuss_id: subscriber.chatID,
-              message: msg,
+              message: this.mode === 0 ? msg : text,
             });
           };
           if (this.redisClient) {

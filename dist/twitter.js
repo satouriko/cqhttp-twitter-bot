@@ -107,7 +107,7 @@ class default_1 {
                 }
                 if (lock.threads[lock.feed[lock.workon]].offset === 0)
                     tweets.splice(1);
-                return this.webshot(tweets, (msg, text) => {
+                return this.webshot(this.mode, tweets, (msg, text) => {
                     lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
                         logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
                         const hash = sha1(JSON.stringify(subscriber) + text);
@@ -117,7 +117,7 @@ class default_1 {
                                 user_id: subscriber.chatID,
                                 group_id: subscriber.chatID,
                                 discuss_id: subscriber.chatID,
-                                message: msg,
+                                message: this.mode === 0 ? msg : text,
                             });
                         };
                         if (this.redisClient) {
@@ -171,6 +171,7 @@ class default_1 {
         this.bot = opt.bot;
         this.webshotDelay = opt.webshotDelay;
         this.redisConfig = opt.redis;
+        this.mode = opt.mode;
     }
 }
 exports.default = default_1;
