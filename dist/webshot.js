@@ -145,7 +145,10 @@ class Webshot extends CallableInstance {
             resolve();
         });
         tweets.forEach(twi => {
-            logger.info(`working on ${twi.user.screen_name}/${twi.id_str}`);
+            promise = promise.then(() => {
+                logger.info(`working on ${twi.user.screen_name}/${twi.id_str}`);
+            });
+            const originTwi = twi.retweeted_status || twi;
             let cqstr = '';
             if (mode === 0) {
                 const url = `https://mobile.twitter.com/${twi.user.screen_name}/status/${twi.id_str}`;
@@ -154,8 +157,8 @@ class Webshot extends CallableInstance {
                     if (base64Webshot)
                         cqstr += `[CQ:image,file=base64://${base64Webshot}]`;
                 });
-                if (twi.extended_entities) {
-                    twi.extended_entities.media.forEach(media => {
+                if (originTwi.extended_entities) {
+                    originTwi.extended_entities.media.forEach(media => {
                         promise = promise.then(() => this.fetchImage(media.media_url_https))
                             .then(base64Image => {
                             if (base64Image)
@@ -163,10 +166,10 @@ class Webshot extends CallableInstance {
                         });
                     });
                 }
-                if (twi.entities && twi.entities.urls && twi.entities.urls.length) {
+                if (originTwi.entities && originTwi.entities.urls && originTwi.entities.urls.length) {
                     promise = promise.then(() => {
-                        const urls = twi.entities.urls
-                            .filter(urlObj => urlObj.indices[0] < twi.display_text_range[1])
+                        const urls = originTwi.entities.urls
+                            .filter(urlObj => urlObj.indices[0] < originTwi.display_text_range[1])
                             .map(urlObj => urlObj.expanded_url);
                         if (urls.length) {
                             cqstr += '\n';
@@ -176,21 +179,27 @@ class Webshot extends CallableInstance {
                 }
             }
             promise.then(() => {
-                let text = (twi.retweeted_status || twi).full_text;
-                if (twi.entities && twi.entities.urls && twi.entities.urls.length) {
-                    twi.entities.urls.forEach(url => {
+                let text = originTwi.full_text;
+                if (originTwi.entities && originTwi.entities.urls && originTwi.entities.urls.length) {
+                    originTwi.entities.urls.forEach(url => {
                         text = text.replace(new RegExp(url.url, 'gm'), url.expanded_url);
                     });
                 }
-                if (twi.extended_entities) {
-                    twi.extended_entities.media.forEach(media => {
+                if (originTwi.extended_entities) {
+                    originTwi.extended_entities.media.forEach(media => {
                         text = text.replace(new RegExp(media.url, 'gm'), typeInZH[media.type]);
                     });
                 }
                 text = text.replace(/&/gm, '&amp;')
                     .replace(/\[/gm, '&#91;')
                     .replace(/\]/gm, '&#93;');
-                callback(cqstr, text, twi.user);
+                let author = `${twi.user.name} (@${twi.user.screen_name}):\n`;
+                if (twi.retweeted_status)
+                    author += `RT @${twi.retweeted_status.user.screen_name}: `;
+                author = author.replace(/&/gm, '&amp;')
+                    .replace(/\[/gm, '&#91;')
+                    .replace(/\]/gm, '&#93;');
+                callback(cqstr, text, author);
             });
         });
         return promise;

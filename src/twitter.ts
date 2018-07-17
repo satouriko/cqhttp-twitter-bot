@@ -155,14 +155,13 @@ export default class {
           logger.debug(hash);
           hash = sha1(JSON.stringify(subscriber) + text);
           logger.debug(hash);
-          const twtext = `${author.name}（@${author.screen_name}）：\n${text}`;
           const send = () => {
             this.bot.bot('send_msg', {
               message_type: subscriber.chatType,
               user_id: subscriber.chatID,
               group_id: subscriber.chatID,
               discuss_id: subscriber.chatID,
-              message: this.mode === 0 ? msg : twtext,
+              message: this.mode === 0 ? msg : author + text,
             });
           };
           if (this.redisClient) {
