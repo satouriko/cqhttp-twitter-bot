@@ -107,20 +107,21 @@ class default_1 {
                 }
                 if (lock.threads[lock.feed[lock.workon]].offset === 0)
                     tweets.splice(1);
-                return this.webshot(this.mode, tweets, (msg, text) => {
+                return this.webshot(this.mode, tweets, (msg, text, author) => {
                     lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
                         logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
                         let hash = JSON.stringify(subscriber) + text;
                         logger.debug(hash);
                         hash = sha1(JSON.stringify(subscriber) + text);
                         logger.debug(hash);
+                        const twtext = `${author.name}（@${author.screen_name}）：\n${text}`;
                         const send = () => {
                             this.bot.bot('send_msg', {
                                 message_type: subscriber.chatType,
                                 user_id: subscriber.chatID,
                                 group_id: subscriber.chatID,
                                 discuss_id: subscriber.chatID,
-                                message: this.mode === 0 ? msg : text,
+                                message: this.mode === 0 ? msg : twtext,
                             });
                         };
                         if (this.redisClient) {

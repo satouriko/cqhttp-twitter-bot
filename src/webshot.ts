@@ -6,6 +6,12 @@ import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 import * as read from 'read-all-stream';
 
+const typeInZH = {
+  photo: '[图片]',
+  video: '[视频]',
+  animated_gif: '[GIF]',
+};
+
 const logger = log4js.getLogger('webshot');
 logger.level = (global as any).loglevel;
 
@@ -178,10 +184,15 @@ class Webshot extends CallableInstance {
             text = text.replace(new RegExp(url.url, 'gm'), url.expanded_url);
           });
         }
+        if (twi.extended_entities) {
+          twi.extended_entities.media.forEach(media => {
+            text = text.replace(new RegExp(media.url, 'gm'), typeInZH[media.type]);
+          });
+        }
         text = text.replace(/&/gm, '&amp;')
           .replace(/\[/gm, '&#91;')
           .replace(/\]/gm, '&#93;');
-        callback(cqstr, text);
+        callback(cqstr, text, twi.user);
       });
     });
     return promise;

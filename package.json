@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rikakomoe/cqhttp-twitter-bot.git"
+    "url": "git+https://github.com/rikakomoe/cqhttp-twitter-bot.git"
   },
   "keywords": [
     "cq",
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/rikakomoe/cqhttp-twitter-bot",
   "scripts": {
-    "build": "rm -r dist && tsc --outDir dist",
+    "build": "rm -rf dist && tsc --outDir dist",
     "lint": "tslint --fix -c tslint.json --project ./"
   },
   "dependencies": {

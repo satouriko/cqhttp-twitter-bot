@@ -2,3 +2,6 @@ yarn-error.log
 node_modules
 .idea
 *.lock
+*.json
+!config.example.json
+nohup.out
