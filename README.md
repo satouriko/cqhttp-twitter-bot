@@ -44,7 +44,7 @@ cqhttp-twitter-bot config.json
 | redis | 启用 Redis | false |
 | redis_host | Redis Host | 127.0.0.1 |
 | redis_port | Redis Port | 6379 |
-| redis_expire_time | Redis key 过期时间（秒） | 43200 |
+| redis_expire_time | Redis Key 过期时间（秒） | 43200 |
 
 示例文件在 `config.example.json`
 
@@ -86,7 +86,9 @@ Bot 启动了以后就可以在 QQ 里用命令了。命令有：
 4. 如果启用了 Redis，同一聊天中 Redis 过期时间内的重复推文会被去重，
 如同一列表中不同人转推等。
 
-5. 转推是没有图片的。这个是 API 的问题。这个人原创的 twitter 的话如果有图片
-会另外拉取一波图片附加在消息里。如果是视频的话则是封面图。
+5. 原创和转推的推文如果有图片的话会另外拉取一波图片附加在消息里。
+如果是视频的话则是封面图。“带评论转推”并不是转推，相当于是分享的链接，
+跟从一些其他网站分享的链接是类似的。
+这种情况不会拉取图片过来，链接也不会有（因为一般都被墙了）。
 
 6. 怎么查看翻译？QQ 点开图片，长按 -> 提取图中文字 -> 译

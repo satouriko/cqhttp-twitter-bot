@@ -151,9 +151,9 @@ export default class {
       return (this.webshot as any)(this.mode, tweets, (msg, text, author) => {
         lock.threads[lock.feed[lock.workon]].subscribers.forEach(subscriber => {
           logger.info(`pushing data of thread ${lock.feed[lock.workon]} to ${JSON.stringify(subscriber)}`);
-          let hash = JSON.stringify(subscriber) + text;
+          let hash = JSON.stringify(subscriber) + text.replace(/\s+/gm, '');
           logger.debug(hash);
-          hash = sha1(JSON.stringify(subscriber) + text);
+          hash = sha1(hash);
           logger.debug(hash);
           const send = () => {
             this.bot.bot('send_msg', {
