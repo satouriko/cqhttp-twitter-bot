@@ -296,7 +296,7 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
 
-cq-websocket@^1.2.6:
+cq-websocket@1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/cq-websocket/-/cq-websocket-1.2.6.tgz#87e75f30a1fb1f25dbf1e4e9d93af6aa8e287b5e"
   dependencies:
@@ -783,8 +783,8 @@ lodash.padend@^4.6.1:
   resolved "https://registry.yarnpkg.com/lodash.padend/-/lodash.padend-4.6.1.tgz#53ccba047d06e158d311f45da625f4e49e6f166e"
 
 lodash@^4.0.0, lodash@^4.15.0, lodash@^4.17.10:
-  version "4.17.10"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.10.tgz#1b7793cf7259ea38fb3661d4d38b3260af8ae4e7"
+  version "4.17.15"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
 
 log4js@^2.10.0:
   version "2.10.0"
